@@ -1,0 +1,10 @@
+.hidden{
+    display: none;
+}
+.atnd_Con td a.at_abs{
+    text-align: center;
+    text-indent: 0;
+}
+.atnd_Con td a.at_abs:hover {
+  background-color: #ffeec4;
+}
