@@ -1,5 +1,6 @@
 <div class="formCon">
-<div class="formConInner" style="width:50%; height:auto; min-height:150px;">
+<div class="formConInner" style="height:auto; min-height:150px;">
+    <label><?php echo $timetable->fieldClassSubject ?></label>
 <?php $form=$this->beginWidget('CActiveForm', array(
 	'id'=>'student-attentance-form',
 	//'enableAjaxValidation'=>true,
@@ -26,15 +27,6 @@
 		<?php echo $form->error($model,'reason'); ?>
 	</div>
 	<br />
-    <div class="row hidden">
-		<?php
-                echo $form->labelEx($model,'timetable_id');
-		$entries = CHtml::listData($time_table,'id','fieldClassSubject');
-		?>
-		<?php echo $form->dropDownList($model,'timetable_id',$entries,array('empty' => Yii::t('app','Select Time Table'))); ?>
-		<?php echo $form->error($model,'timetable_id'); ?>
-	</div>
-	<br />
     <div class="row">
 		<?php echo $form->labelEx($model,'leave_type_id');
 		$leave_type=CHtml::listData(StudentLeaveTypes::model()->findAllByAttributes(array('status'=>1)),'id','name');
@@ -45,6 +37,7 @@
 	<br /><br />
 	<div class="row buttons">
 		<?php //echo CHtml::submitButton($model->isNewRecord ? 'Create' : 'Save'); ?>
+        <?php echo $form->hiddenField($model,'timetable_id',array('value' => $timetable->id)); ?>
          <?php echo CHtml::ajaxSubmitButton(Yii::t('app','Save'),CHtml::normalizeUrl(array('StudentAttentance/Addnew','render'=>false)),array('dataType'=>'json','success'=>'js: function(data) {
 			 			if (data.status == "success")
                 		{

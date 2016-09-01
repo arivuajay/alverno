@@ -96,7 +96,7 @@ else
 	$leave_types=StudentLeaveTypes::model()->findByAttributes(array('id'=>$student_attentance->leave_type_id));
 	if($leave_types)
 	{
-	  $span = '<span class="abs1" style="color:'.$leave_types->colour_code.';text-align:center;padding-top:2px">'.$leave_types->label.'</span>';
+	  $span = '<span class="abs1" style="color:'.$leave_types->colour_code.';">'.$leave_types->label.'</span>';
 	}
 	else
 	$span = '<span class="abs"></span>';

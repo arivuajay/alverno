@@ -5,6 +5,15 @@
     text-align: center;
     text-indent: 0;
 }
-.atnd_Con td a.at_abs:hover {
+.atnd_Con td a.at_abs:hover, span.abs1:hover {
   background-color: #ffeec4;
+}
+
+span.abs1 {
+  font-size: 12px;
+  margin: 0 auto;
+  padding: 10px 0 !important;
+  height: auto;
+  width: auto;
+  text-align:center;
 }

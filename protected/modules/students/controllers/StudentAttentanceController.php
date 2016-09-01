@@ -184,10 +184,10 @@ class StudentAttentanceController extends RController
 		if($flag) {
                     $student=Students::model()->findByAttributes(array('id'=>$_GET['emp_id']));
                     $week = date('w', strtotime($_GET['year'].'-'.$_GET['month'].'-'.$_GET['day']))+1;
-                    $time_table = TimetableEntries::model()->findAll("batch_id = :batch AND weekday_id = :week", array(":batch" => $student->batch_id, ":week" => $week));
-                    $model->timetable_id = $_GET['timetable'];
+                    $timetable = TimetableEntries::model()->findByPk($_GET['timetable']);
+
 			Yii::app()->clientScript->scriptMap['jquery.js'] = false;
-			$this->renderPartial('create',array('model'=>$model,'day'=>$_GET['day'],'month'=>$_GET['month'],'year'=>$_GET['year'],'emp_id'=>$_GET['emp_id'],'time_table' => $time_table),false,true);
+			$this->renderPartial('create',array('model'=>$model,'day'=>$_GET['day'],'month'=>$_GET['month'],'year'=>$_GET['year'],'emp_id'=>$_GET['emp_id'],'timetable' => $timetable),false,true);
 		}
    }
 		/*
@@ -253,10 +253,10 @@ class StudentAttentanceController extends RController
 		if($flag) {
                 $student=Students::model()->findByAttributes(array('id'=>$_GET['emp_id']));
                 $week = date('w', strtotime($model->date)) + 1;
-                $time_table = TimetableEntries::model()->findAll("batch_id = :batch AND weekday_id = :week", array(":batch" => $student->batch_id, ":week" => $week));
+                $timetable = TimetableEntries::model()->findByPk($model->timetable_id);
 
 			Yii::app()->clientScript->scriptMap['jquery.js'] = false;
-			$this->renderPartial('update',array('model'=>$model,'day'=>$_GET['day'],'month'=>$_GET['month'],'year'=>$_GET['year'],'emp_id'=>$_GET['emp_id'],'time_table' => $time_table),false,true);
+			$this->renderPartial('update',array('model'=>$model,'day'=>$_GET['day'],'month'=>$_GET['month'],'year'=>$_GET['year'],'emp_id'=>$_GET['emp_id'],'timetable' => $timetable),false,true);
 		}
      }
 		/* Delete the marked leave

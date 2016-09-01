@@ -32,6 +32,7 @@ $this->beginWidget('zii.widgets.jui.CJuiDialog',array(
 
 
 <div style="padding:10px 20px 10px 20px;">
-<?php echo $this->renderPartial('_form1', array('model'=>$model,'day' =>$day,'month'=>$month,'year'=>$year,'emp_id'=>$emp_id,'time_table' => $time_table));?>
+<?php
+echo $this->renderPartial('_form1', array('model'=>$model,'day' =>$day,'month'=>$month,'year'=>$year,'emp_id'=>$emp_id,'timetable' => $timetable));?>
 </div>
 <?php $this->endWidget('zii.widgets.jui.CJuiDialog');?>
