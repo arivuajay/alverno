@@ -7,6 +7,7 @@
  * @property integer $id
  * @property integer $student_id
  * @property integer $date
+ * @property integer $timetable_id
  * @property string $reason
  */
 class StudentAttentance extends CActiveRecord
