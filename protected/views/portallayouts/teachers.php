@@ -11,7 +11,7 @@
 			'jquery.min.js'=>false,
 			'jquery.js'=>false,
 		);
-  
+
   ?>
 	   <script src="<?php echo Yii::app()->request->baseUrl;?>/res_js/jquery-1.7.2.min.js"></script>
    <title> <?php $college=Configurations::model()->findByPk(1); ?><?php echo $college->config_value ; ?></title>
@@ -19,14 +19,15 @@
   <link href="res_css/style.default.css" rel="stylesheet">
   <link href="res_css/fullcalendar.css" rel="stylesheet">
   <link href="res_css/jquery.datatables.css" rel="stylesheet">
-  <?php 
+  <link href="res_css/teacher.custom.css" rel="stylesheet">
+<?php
  //check fav icon set
   $fav=  Favicon::model()->find();
   if(isset($fav->icon) and $fav->icon!="")
-  { 
+  {
       ?>
       <link rel="icon" type="image/ico" href="<?php echo Yii::app()->request->baseUrl; ?>/uploadedfiles/school_favicon/<?php echo $fav->icon; ?>"/>
-  <?php 
+  <?php
   }
   else
   {
@@ -41,7 +42,7 @@
   <script src="js/html5shiv.js"></script>
   <script src="js/respond.min.js"></script>
   <![endif]-->
-  
+
    <script>
         $(document).ready(function(){
 			$(".plusbut").click(function(){
@@ -53,7 +54,7 @@
 				}
 				return false;
 			});
-			
+
 			$('.addmenu').click(function(e) {
 				e.stopPropagation();
 			});
@@ -63,8 +64,8 @@
         });
         </script>
 </head>
-<?php 
-//check theme set 
+<?php
+//check theme set
 
 $header_logo_background=""; $header_bar_background=""; $header_border=""; $header_dropdown_background=""; $header_dropdown_text="";
 $header_dropdown_over=""; $header_text_color=""; $page_header_background=""; $page_header_text=""; $left_panel_background=""; $left_panel_text="";
@@ -88,9 +89,9 @@ $left_panel_over_background=""; $left_panel_over_text=""; $left_panel_active_bac
       $left_panel_active_background=$themes->left_panel_active_background;
       $left_panel_active_text= $themes->left_panel_active_text;
       $main_panel_background= $themes->main_panel_background;
-      
+
     }
-    
+
     ?>
 <body style="background-color: <?php echo $left_panel_background; ?>; ">
 
@@ -120,32 +121,32 @@ $left_panel_over_background=""; $left_panel_over_text=""; $left_panel_active_bac
 <section>
 
   <div class="mainpanel">
-    
+
     <div class="headerbar" style="color: <?php echo $header_text_color; ?>; background-color: <?php echo $header_bar_background; ?>; border-left-color:<?php echo $header_border; ?> ">
-      
+
       <a class="menutoggle" style="border-right-color: <?php echo $header_border; ?>"><i class="fa fa-bars"></i></a>
-     			<?php 
-                    $teacher=Employees::model()->findByAttributes(array('uid'=>Yii::app()->user->id));                   
+     			<?php
+                    $teacher=Employees::model()->findByAttributes(array('uid'=>Yii::app()->user->id));
                     ?>
      <div class="searchform"><span class="col-md-4"><?php echo Yii::t('app','Welcome'); ?> <strong><?php echo ucfirst($teacher->last_name.' '.$teacher->first_name);?></strong> <?php echo Yii::t('app','in to your profile.'); ?></span></div>
-      
-      
-   
+
+
+
       <div class="header-right">
         <ul class="headermenu">
         <li>
             <?php /*?><div class="btn-group">
             <?php echo CHtml::link('<i class="glyphicon glyphicon-download"></i><span class="badge">'.FileUploads::model()->teachDwlnds(Yii::app()->user->id).'</span>',array('/portaldownloads/teachers'),array('class'=>'btn btn-default dropdown-toggle tp-icon')); ?>
             </div><?php */?>
-         
-           
+
+
           <li>
-          
+
           <li>
             <div class="btn-group">
            <?php echo CHtml::link('<i class="glyphicon glyphicon-envelope"></i><span class="badge">'.Mailbox::model()->newMsgs(Yii::app()->user->id).'</span>',array('/portalmailbox'),array('class'=>'btn btn-default dropdown-toggle tp-icon','style'=>"background-color:$header_bar_background")); ?>
-          
-          
+
+
           <li>
             <div class="btn-group">
                <?php //echo CHtml::link(Yii::t('app','<i class="glyphicon glyphicon-envelope"></i>'),array('/portalmailbox'),array('class'=>'btn btn-default dropdown-toggle tp-icon')); ?>
@@ -263,24 +264,24 @@ $left_panel_over_background=""; $left_panel_over_text=""; $left_panel_active_bac
           </li>-->
           <li>
             <div class="btn-group">
-            	 
+
               <button style="background-color: <?php echo $header_bar_background; ?> !important" type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
                 <?php
 					 if($teacher->photo_file_name!=NULL)
-					 { 
+					 {
 					 	$path = Employees::model()->getProfileImagePath($teacher->id);
 						echo '<img  src="'.$path.'"  />';
 					}
 					elseif($teacher->gender=='M')
 					{
-						echo '<img  src="images/portal/p-small-male_img.png" alt='.$teacher->first_name.'   />'; 
+						echo '<img  src="images/portal/p-small-male_img.png" alt='.$teacher->first_name.'   />';
 					}
 					elseif($teacher->gender=='F')
 					{
 						echo '<img  src="images/portal/p-small-female_img.png" alt='.$teacher->first_name.'   />';
 					}
 					?>
-              
+
                         <strong><?php echo ucfirst($teacher->last_name.' '.$teacher->first_name);?></strong>
                 <span class="caret"></span>
               </button>
@@ -300,20 +301,20 @@ $left_panel_over_background=""; $left_panel_over_text=""; $left_panel_active_bac
               </ul>
             </div>
           </li>
-         
+
         </ul>
       </div><!-- header-right -->
-      
+
     </div><!-- headerbar -->
-    
-    
+
+
 
   	<?php echo $content;?>
     </div><!-- mainpanel -->
 </section>
 
 
- 
+
 
 <script src="res_js/jquery-migrate-1.2.1.min.js"></script>
 <script src="res_js/bootstrap.min.js"></script>
@@ -335,7 +336,7 @@ $left_panel_over_background=""; $left_panel_over_text=""; $left_panel_active_bac
 </body>
 </html>
 <style>
-                .headermenu .dropdown-menu li a 
+                .headermenu .dropdown-menu li a
                 {
                     color:<?php echo $header_dropdown_text; ?>;
                 }
@@ -367,12 +368,12 @@ $left_panel_over_background=""; $left_panel_over_text=""; $left_panel_active_bac
                 }
                 .pageheader
                 {
-                    background-color: <?php echo $page_header_background; ?>;  
+                    background-color: <?php echo $page_header_background; ?>;
                     border-top-color: <?php echo $header_border; ?>;
                 }
                 .pageheader h2, .pageheader h2 span
                 {
-                    color: <?php echo $page_header_text; ?>;  
+                    color: <?php echo $page_header_text; ?>;
                 }
                 .pageheader h2 i.fa
                 {
@@ -380,6 +381,6 @@ $left_panel_over_background=""; $left_panel_over_text=""; $left_panel_active_bac
                 }
                 .pageheader .breadcrumb-wrapper span.label, .pageheader .breadcrumb li.active
                 {
-                    color: <?php echo $page_header_text; ?>;  
+                    color: <?php echo $page_header_text; ?>;
                 }
             </style>

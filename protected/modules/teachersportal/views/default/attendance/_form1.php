@@ -3,6 +3,7 @@
 </style>
 <div class="formCon">
 <div class="formConInner">
+    <label><?php echo $timetable->fieldClassSubject ?></label>
 <?php $form=$this->beginWidget('CActiveForm', array(
 	'id'=>'student-attentance-form',
 	'enableAjaxValidation'=>true,
@@ -27,7 +28,7 @@
 		<?php echo $form->hiddenField($model,'date',array('value'=>$year.'-'.$month.'-'.$day)); ?>
 		<?php echo $form->error($model,'date'); ?>
 	</div>
-    
+
     <div class="row">
     			<?php $leave_types = CHtml::listData(StudentLeaveTypes::model()->findAllByAttributes(array('status'=>1)),'id','name');?>
     			<?php echo $form->labelEx($model,'leave_type_id'); ?>
@@ -35,8 +36,8 @@
 				echo $form->dropDownList($model,'leave_type_id',$leave_types,array('options' => array($model->id=>array('selected'=>true)),
         'style'=>'width:100%;','empty'=>'Select Leave Type')); ?>
         		<?php echo $form->error($model,'leave_type_id'); ?>
-        
-                
+
+
     </div>
 	<div id="leave" style="color:#F00"></div>
 	<div class="row">
@@ -48,6 +49,7 @@
 	<br />
 	<div class="row buttons">
 		<?php //echo CHtml::submitButton($model->isNewRecord ? 'Create' : 'Save'); ?>
+        <?php echo $form->hiddenField($model,'timetable_id',array('value' => $timetable->id)); ?>
          <?php echo CHtml::ajaxSubmitButton(Yii::t('app','Save'),CHtml::normalizeUrl(array('/teachersportal/default/EditLeave','render'=>false)),array('dataType'=>'json','success'=>'js: function(data) {
 			 		if (data.status == "success")
                 	{
@@ -67,7 +69,7 @@
 						}
 					}
                     }'),array('id'=>'closeJobDialog'.$day.$emp_id,'name'=>'save')); ?>
-                    
+
      <?php echo CHtml::ajaxSubmitButton(Yii::t('app','Delete'),CHtml::normalizeUrl(array('/teachersportal/default/DeleteLeave','render'=>false)),array('success'=>'js: function(data) {
 		                $("#td'.$day.$emp_id.'").text(" ");
 		                $("#jobDialog'.$day.$emp_id.'").dialog("close"); window.location.reload();

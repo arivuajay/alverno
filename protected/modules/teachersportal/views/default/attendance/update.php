@@ -13,7 +13,7 @@ $this->breadcrumbs=array(
 //);
 ?>
 <link rel="stylesheet" type="text/css" href="<?php echo Yii::app()->request->baseUrl; ?>/css/ui-style.css" />
-<?php 
+<?php
 $this->beginWidget('zii.widgets.jui.CJuiDialog',array(
                 'id'=>'jobDialog'.$day.$emp_id,
                 'options'=>array(
@@ -28,5 +28,5 @@ $this->beginWidget('zii.widgets.jui.CJuiDialog',array(
 
 
 
-<?php echo $this->renderPartial('attendance/_form1', array('model'=>$model,'model1'=>$model1,'day' =>$day,'month'=>$month,'year'=>$year,'emp_id'=>$emp_id,'batch_id'=>$batch_id));?>
+<?php echo $this->renderPartial('attendance/_form1', array('model'=>$model,'model1'=>$model1,'day' =>$day,'month'=>$month,'year'=>$year,'emp_id'=>$emp_id,'batch_id'=>$batch_id,'timetable' => $timetable));?>
 <?php $this->endWidget('zii.widgets.jui.CJuiDialog');?>

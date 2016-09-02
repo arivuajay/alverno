@@ -182,8 +182,6 @@ class StudentAttentanceController extends RController
 	    }
 
 		if($flag) {
-                    $student=Students::model()->findByAttributes(array('id'=>$_GET['emp_id']));
-                    $week = date('w', strtotime($_GET['year'].'-'.$_GET['month'].'-'.$_GET['day']))+1;
                     $timetable = TimetableEntries::model()->findByPk($_GET['timetable']);
 
 			Yii::app()->clientScript->scriptMap['jquery.js'] = false;
@@ -251,8 +249,6 @@ class StudentAttentanceController extends RController
         }
 	  // var_dump($model->geterrors());
 		if($flag) {
-                $student=Students::model()->findByAttributes(array('id'=>$_GET['emp_id']));
-                $week = date('w', strtotime($model->date)) + 1;
                 $timetable = TimetableEntries::model()->findByPk($model->timetable_id);
 
 			Yii::app()->clientScript->scriptMap['jquery.js'] = false;
