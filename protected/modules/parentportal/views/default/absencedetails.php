@@ -20,21 +20,21 @@
 		var yearid = document.getElementById('yearid').value;
 		if(studentid!='' && yearid!='')
 		{
-			window.location= 'index.php?r=parentportal/default/AbsenceDetails&id='+studentid+'&yid='+yearid;	
+			window.location= 'index.php?r=parentportal/default/AbsenceDetails&id='+studentid+'&yid='+yearid;
 		}
 		else
 		{
 			window.location= 'index.php?r=parentportal/default/AbsenceDetails';
 		}
 	}
-	
+
 	function getyear()
 	{
 		var studentid = document.getElementById('studentid').value;
 		var yearid = document.getElementById('yearid').value;
 		if(yearid!='')
 		{
-			window.location= 'index.php?r=parentportal/default/AbsenceDetails&id='+studentid+'&yid='+yearid;	
+			window.location= 'index.php?r=parentportal/default/AbsenceDetails&id='+studentid+'&yid='+yearid;
 		}
 		else
 		{
@@ -48,7 +48,7 @@
 
 
 
-<?php $this->renderPartial('leftside');?> 
+<?php $this->renderPartial('leftside');?>
     <?php
     $cal ='{
     title: "'.Yii::t('app','All Day Event').'",
@@ -57,17 +57,17 @@
     $m='';
     $d='';
     $y='';
-    
+
     $guardian = Guardians::model()->findByAttributes(array('uid'=>Yii::app()->user->id));
 	$students = Students::model()->findAllByAttributes(array('parent_id'=>$guardian->id));
-	if(count($students)==1) // Single Student 
+	if(count($students)==1) // Single Student
 	{
 		$attendances = StudentAttentance::model()->findAll('student_id=:x group by date',array(':x'=>$students[0]->id));
 	}
 	elseif(isset($_REQUEST['id']) and $_REQUEST['id']!=NULL) // If Student ID is set
 	{
 		$attendances = StudentAttentance::model()->findAll('student_id=:x group by date',array(':x'=>$_REQUEST['id']));
-		
+
 	}
 	elseif(count($students)>1) // Multiple Student
 	{
@@ -82,11 +82,11 @@
 		title: '".'<div align="center" title="Reason: '.$attendance->reason.'"><img src="images/portal/atend_cross.png" width="26" border="0"  height="25" /></div>'."',
 		start: new Date('".$y."', '".$m."', '".$d."')
 		},";
-    
+
     }
-	
+
 	$all_holidays = Holidays::model()->findAll();
-	
+
 	$holiday_arr=array();
 	foreach($all_holidays as $key=>$holiday)
 	{
@@ -94,7 +94,7 @@
 		{
 			$date_range = StudentAttentance::model()->createDateRangeArray(date('Y-m-d',$holiday->start),date('Y-m-d',$holiday->end));
 			foreach ($date_range as $value) {
-				
+
 				$m=date('m',strtotime($value))-1;
 				$d=date('d',strtotime($value));
 				$y=date('Y',strtotime($value));
@@ -102,40 +102,40 @@
 				title: '".'<div align="center" title="Reason: '.$holiday->title.'"><img src="images/portal/holiday.png" width="40" border="0"  height="40" /></div>'."',
 				start: new Date('".$y."', '".$m."', '".$d."')
 				},";
-				
-				
+
+
 			}
 		}
 		else
 		{
-			
+
 				$m=date('m',strtotime(date('Y-m-d',$holiday->start)))-1;
 				$d=date('d',strtotime(date('Y-m-d',$holiday->start)));
 				$y=date('Y',strtotime(date('Y-m-d',$holiday->start)));
 				$cal .= "{
 				title: '".'<div align="center" title="Reason: '.$holiday->title.'"><img src="images/portal/holiday.png" width="40" border="0"  height="40" /></div>'."',
 				start: new Date('".$y."', '".$m."', '".$d."')
-				},";	
+				},";
 		}
 	}
     ?>
- 
+
 <div class="pageheader">
     <div class="col-lg-8">
      <h2><i class="fa fa-file-text"></i> <?php echo Yii::t('app','Attendance'); ?> <span><?php echo Yii::t('app','View your attendance here'); ?></span></h2>
     </div>
-   
+
       <div class="breadcrumb-wrapper">
         <span class="label"><?php echo Yii::t('app','You are here:'); ?></span>
         <ol class="breadcrumb">
           <!--<li><a href="index.html">Home</a></li>-->
-         
+
           <li class="active"><?php echo Yii::t('app','Attendance'); ?></li>
         </ol>
       </div>
-     
+
      <div class="clearfix"></div>
-      
+
     </div>
 <script type='text/javascript'>
 $.noConflict();
@@ -173,9 +173,9 @@ jQuery( document ).ready(function( $ ) {
 			events: [ <?php echo $cal; ?>]
 			});
         });
-        }); 
+        });
         </script>
-        
+
         <script type="text/javascript">
         $(document).ready(function(){
 			$("#shbar").click(function(){
@@ -184,9 +184,9 @@ jQuery( document ).ready(function( $ ) {
         });
         </script>
         <div class="contentpanel">
-		
+
 		<div class="people-item">
-		
+
 			<?php
                 if(count($students)>1)
 				{
@@ -217,9 +217,9 @@ jQuery( document ).ready(function( $ ) {
 				?>
 		<div class="clearfix"></div>
 		</div>
-		
+
 <?php
-		
+
 			if($_REQUEST['id']!=NULL && $_REQUEST['yid']!=NULL)
 			{
 				$yeardetails = AcademicYears::model()->findByPk($_REQUEST['yid']);
@@ -234,54 +234,54 @@ jQuery( document ).ready(function( $ ) {
 				$studentdetails = Students::model()->findByPk($_REQUEST['id']);
 				$batch = Batches::model()->findByPk($studentdetails->batch_id);
 						?>
-						
-						
-							
+
+
+
                             <!-- Yearly PDF -->
                             <?php if($_REQUEST['yid']!=NULL)
 							{
 							?>
-							
+
 							<div class="panel-heading">
               <!-- panel-btns -->
 			  <div class="col-lg-6">
               <h3 class="panel-title">
 			  <?php echo Yii::t('app','Yearly Student Attendance Report');?></h3>
 			  </div>
-			  
+
 			  <div class="col-lg-6">
 			  <?php echo CHtml::link(Yii::t('app','Back'), array('/parentportal/default/attendance','id'=>$_REQUEST['id'],'yid'=>$_REQUEST['yid']),array('class'=>'btn btn-danger pull-right','style'=>'')); ?>
-								
+
 								<?php echo CHtml::link(Yii::t('app','Generate PDF'), array('/parentportal/default/AttendancePdf','id'=>$_REQUEST['id'],'yid'=>$_REQUEST['yid']),array('target'=>"_blank",'class'=>'btn btn-danger pull-right','style'=>'margin-right:10px')); ?>
 				</div>
 				<div class="clearfix"></div>
-			  
+
 			  </div>
-                            
-                          
-								
-							
+
+
+
+
                             <?php
 							}
 							else
 							{
 							?>
-							
+
 							<div class="panel-heading">
               <!-- panel-btns -->
 			  <div class="col-lg-6">
               <h3 class="panel-title">
 			  <?php echo Yii::t('app','Yearly Student Attendance Report');?></h3>
 			  </div>
-			  
+
 			  <div class="col-lg-6">
 			 <?php echo CHtml::link(Yii::t('app','Back'), array('/parentportal/default/attendance'),array('class'=>'btn btn-danger pull-right','style'=>'')); ?>
-								
+
 								<?php echo CHtml::link(Yii::t('app','Generate PDF'), array('/parentportal/default/AttendancePdf','id'=>$_REQUEST['id']
 								),array('target'=>"_blank",'class'=>'btn btn-danger pull-right','style'=>'margin-right:10px')); ?>
 				</div>
 				<div class="clearfix"></div>
-			  
+
 			  </div>
                             <?php
 							}
@@ -295,10 +295,10 @@ jQuery( document ).ready(function( $ ) {
                                         <?php /*?><th><?php echo Yii::t('app','Sl No');?></th><?php */?>
                                         <th><?php echo Yii::t('app','Adm No');?></th>
                                         <?php
-											if(FormFields::model()->isVisible("fullname", "Students", "forParentPortal")){						
-										?> 	
+											if(FormFields::model()->isVisible("fullname", "Students", "forParentPortal")){
+										?>
                                         	<th><?php echo Yii::t('app','Name');?></th>
-                                        <?php } ?>    
+                                        <?php } ?>
                                         <th><?php echo Yii::t('app','Working Days');?></th>
                                         <th><?php echo Yii::t('app','Leaves');?></th>
                                     </tr>
@@ -311,12 +311,12 @@ jQuery( document ).ready(function( $ ) {
                                     	<?php /*?><td style="padding-top:10px; padding-bottom:10px;"><?php echo $yearly_sl; $yearly_sl++;?></td><?php */?>
                                         <td><?php echo $studentdetails->admission_no; ?></td>
                                         <?php
-											if(FormFields::model()->isVisible("fullname", "Students", "forParentPortal")){						
-										?> 	
+											if(FormFields::model()->isVisible("fullname", "Students", "forParentPortal")){
+										?>
                                             <td>
                                                 <?php echo $studentdetails->studentFullName('forParentPortal');?>
                                             </td>
-                                        <?php } ?>    
+                                        <?php } ?>
                                         <td>
 											<?php
 														$admindetails = User::model()->findByAttributes(array('username'=>'admin'));
@@ -324,7 +324,7 @@ jQuery( document ).ready(function( $ ) {
 														$holidaycount = 0;
 														$holidaydetails = Holidays::model()->findAllByAttributes(array('user_id'=>$uid));
 														$required_year = $strtyear;
-														
+
 														foreach($holidaydetails as $holidaydetail)
 														{
 															$startyear = date('Y',$holidaydetail->start);
@@ -333,7 +333,7 @@ jQuery( document ).ready(function( $ ) {
 															{
 																$holidaycount++;
 															}
-															
+
 														}
                                                         $weekdetails = Weekdays::model()->findAllByAttributes(array('batch_id'=>$studentdetails->batch_id));
                                                         $weekdays = array('sunday','monday','tuesday','wednesday','thursday','friday','saturday');
@@ -362,13 +362,13 @@ jQuery( document ).ready(function( $ ) {
 															$days = floor($diff/(60*60*24)) + 1;
                                                             $dayscount = 0;
                                                             $counter = 0;
-															
+
                                                             foreach($holidays as $holiday)
                                                             {
-                                                                $dayscount += Batches::model()->Daycount($holiday, strtotime(date('d-m-Y',strtotime($batchdetails->start_date))), 
-                                                                    strtotime(date('d-m-Y',strtotime($batchdetails->end_date))), $counter);								
+                                                                $dayscount += Batches::model()->Daycount($holiday, strtotime(date('d-m-Y',strtotime($batchdetails->start_date))),
+                                                                    strtotime(date('d-m-Y',strtotime($batchdetails->end_date))), $counter);
                                                             }
-															
+
                                                             echo $workingday = $days-($dayscount+$holidaycount);
                                                         }
                                                         else
@@ -421,6 +421,7 @@ jQuery( document ).ready(function( $ ) {
                                             <th><?php echo Yii::t('app','Sl No');?></th>
                                             <th><?php echo Yii::t('app','Leave Type');?></th>
                                             <th><?php echo Yii::t('app','Leave Date');?></th>
+                                            <th><?php echo Yii::t('app','Time Table');?></th>
                                             <th><?php echo Yii::t('app','Reason');?></th>
                                         </tr>
                                         <?php
@@ -448,13 +449,25 @@ jQuery( document ).ready(function( $ ) {
                                                 </td>
 												 <!-- Individual Attendance row -->
 												<td>
-													<?php 
+													<?php
 													$settings=UserSettings::model()->findByAttributes(array('user_id'=>$admindetails->id));
 													if($settings!=NULL)
-													{	
+													{
 														$studleave->date = date($settings->displaydate,strtotime($studleave->date));
 													}
-													echo $studleave->date; 
+													echo $studleave->date;
+													?>
+												</td>
+												<td>
+													<?php
+													if($studleave->timetable_id!=NULL)
+													{
+														echo $studleave->timetable->fieldClassSubject;
+													}
+													else
+													{
+														echo '-';
+													}
 													?>
 												</td>
 												<td>
@@ -481,7 +494,7 @@ jQuery( document ).ready(function( $ ) {
                                         	<tr>
                                             	<td colspan="3" style="padding-top:10px; padding-bottom:10px;" align="center">
                                                 	<strong><?php echo Yii::t('app','No leaves taken!'); ?></strong>
-                                            
+
     </td>
                                             </tr>
                                         <?php
@@ -492,7 +505,7 @@ jQuery( document ).ready(function( $ ) {
                             </div>
                             <!-- END Yearly Report Table -->
 						<?php
-						
+
 			//}
 		?>
 </div>

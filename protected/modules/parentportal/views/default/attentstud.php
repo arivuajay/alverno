@@ -15,7 +15,7 @@ $this->breadcrumbs=array(
 	border-left:1px #C5CED9 solid;
 	padding:5px 6px;
 	border-bottom:1px #C5CED9 solid;
-	
+
 }
 
 hr{ border-bottom:1px solid #C5CED9; border-top:0px solid #fff;}
@@ -25,28 +25,28 @@ hr{ border-bottom:1px solid #C5CED9; border-top:0px solid #fff;}
 
 function getweek($date,$month,$year)
 {
-$date = mktime(0, 0, 0,$month,$date,$year); 
-$week = date('w', $date); 
+$date = mktime(0, 0, 0,$month,$date,$year);
+$week = date('w', $date);
 switch($week) {
-case 0: 
+case 0:
 return 'S<br>';
 break;
-case 1: 
+case 1:
 return 'M<br>';
 break;
-case 2: 
+case 2:
 return 'T<br>';
 break;
-case 3: 
+case 3:
 return 'W<br>';
 break;
-case 4: 
+case 4:
 return 'T<br>';
 break;
-case 5: 
+case 5:
 return 'F<br>';
 break;
-case 6: 
+case 6:
 return 'S<br>';
 break;
 }
@@ -87,9 +87,9 @@ else
 	}
 	$num = cal_days_in_month(CAL_GREGORIAN, $mon_num, $curr_year); // 31
 	?>
-  	
+
     <!-- Header -->
-    
+
         <table width="100%" cellspacing="0" cellpadding="0">
             <tr>
                 <td class="first">
@@ -124,16 +124,16 @@ else
                 </td>
             </tr>
         </table>
-   
-    
+
+
     <hr />
     <!-- End Header -->
     <br />
     <div align="center" style="text-align:center; display:block;"><?php echo Yii::t('app','STUDENT ATTENDANCE'); ?></div><br />
     <!-- Student details -->
-    
+
         <table style="font-size:14px; background:#DCE6F1; padding:10px 10px;border:#C5CED9 1px solid;">
-            <?php 
+            <?php
 				//$student = Students::model()->findByAttributes(array('id'=>$_REQUEST['id']));
             ?>
             <tr>
@@ -141,25 +141,25 @@ else
                     <td style="width:150px;"><?php echo Yii::t('app','Name'); ?></td>
                     <td style="width:10px;">:</td>
                     <td style="width:350px;"><?php echo $student->studentFullName('forParentPortal'); ?></td>
-                <?php }else{ ?> 
+                <?php }else{ ?>
                 	<td style="width:150px;"><?php echo Yii::t('app','Name'); ?></td>
                     <td style="width:10px;">:</td>
-                    <td style="width:350px;"><?php echo '-'; ?></td>   
+                    <td style="width:350px;"><?php echo '-'; ?></td>
                 <?php } ?>
                 <td width="150"><?php echo Yii::t('app','Admission Number'); ?></td>
                 <td style="width:10px;">:</td>
                 <td width="350"><?php echo $student->admission_no; ?></td>
-            
+
                 <?php /*?><td><b>Month</b></td>
                 <td style="width:10px;">:</td>
                 <td><?php echo $mon.' '.$_REQUEST['year']; ?></td><?php */?>
             </tr>
-            
-            
-            	<?php 
+
+
+            	<?php
 				$batch = Batches::model()->findByAttributes(array('id'=>$student->batch_id));
 				$course = Courses::model()->findByAttributes(array('id'=>$batch->course_id));
-				
+
 				//find working days.............
 				$batch_start = date('Y-m-d',strtotime($batch->start_date));
                 $batch_end = date('Y-m-d',strtotime($batch->end_date));
@@ -167,12 +167,12 @@ else
 				$batch_days = array();
 				$batch_range = StudentAttentance::model()->createDateRangeArray($batch_start,$batch_end);
 				$batch_days = array_merge($batch_days,$batch_range);
-				
+
 				$weekArray = array();
                 $weekdays = Weekdays::model()->findAll("batch_id=:x AND weekday<>:y", array(':x'=>$batch->id,':y'=>"0"));
                 if(count($weekdays)==0)
                 	$weekdays = Weekdays::model()->findAll("batch_id IS NULL AND weekday<>:y",array(':y'=>"0"));
-					
+
                 foreach($weekdays as $weekday)
 				{
 					$weekday->weekday = $weekday->weekday - 1;
@@ -190,47 +190,47 @@ else
 						array_push($days,$batch_day);
 					}
 				}
-				
-				
-				
+
+
+
 				//find working days.............
 				?>
-              <?php if(FormFields::model()->isVisible('batch_id','Students','forParentPortal')){ ?>   
-                  <tr>  
+              <?php if(FormFields::model()->isVisible('batch_id','Students','forParentPortal')){ ?>
+                  <tr>
                     <td><?php echo Yii::t('app','Course'); ?></td>
                     <td>:</td>
                     <td>
-                        <?php 
+                        <?php
                         if($course->course_name!=NULL)
                             echo ucfirst($course->course_name);
                         else
                             echo '-';
                         ?>
                     </td>
-                    
+
                     <td><?php echo Yii::app()->getModule('students')->fieldLabel("Students", "batch_id"); ?></td>
                     <td>:</td>
                     <td>
-                        <?php 
+                        <?php
                         if($batch->name!=NULL)
                             echo ucfirst($batch->name);
                         else
                             echo '-';
                         ?>
                     </td>
-                
+
                 </tr>
-            <?php } ?>    
+            <?php } ?>
             <tr>
             	<td><?php echo Yii::t('app','Month'); ?></td>
                 <td>:</td>
                 <td colspan="4"><?php echo $mon.' '.$strtyear; ?></td>
             </tr>
-           
+
         </table>
-   
+
     <!-- END Student details -->
-    
+
    <!-- Attendance table -->
    <br/>
  	<?php echo Yii::t('app','Yearly Student Attendance Report');?>
@@ -240,7 +240,7 @@ else
             <td width="280"><?php echo Yii::t('app','Adm No');?></td>
             <?php if(FormFields::model()->isVisible("fullname", "Students", "forParentPortal")){ ?>
             	<td width="320"><?php echo Yii::t('app','Name');?></td>
-            <?php } ?>    
+            <?php } ?>
             <td width="190"><?php echo Yii::t('app','Working Days');?></td>
             <td width="185"><?php echo Yii::t('app','Leaves');?></td>
         </tr>
@@ -256,7 +256,7 @@ else
                 <td>
                     <?php echo $student->studentFullName('forParentPortal');?>
                 </td>
-            <?php } ?>    
+            <?php } ?>
             <td>
                 <?php
                             $admindetails = User::model()->findByAttributes(array('username'=>'admin'));
@@ -272,7 +272,7 @@ else
                                 {
                                     $holidaycount++;
                                 }
-                                
+
                             }
                             $weekdetails = Weekdays::model()->findAllByAttributes(array('batch_id'=>$student->batch_id));
                             $weekdays = array('sunday','monday','tuesday','wednesday','thursday','friday','saturday');
@@ -285,7 +285,7 @@ else
                                     $index++;
                                 }
                             }
-                            
+
                             $batchdetails = Batches::model()->findByAttributes(array('name'=>$batch->name));
                             $batchstartyear = date('Y',strtotime($batchdetails->start_date));
                             $batchendyear = date('Y',strtotime($batchdetails->end_date));
@@ -303,8 +303,8 @@ else
                                 $counter = 0;
                                 foreach($holidays as $holiday)
                                 {
-                                    $dayscount += Batches::model()->Daycount($holiday, strtotime(date('d-m-Y',strtotime($batchdetails->start_date))), 
-                                        strtotime(date('d-m-Y',strtotime($batchdetails->end_date))), $counter);								
+                                    $dayscount += Batches::model()->Daycount($holiday, strtotime(date('d-m-Y',strtotime($batchdetails->start_date))),
+                                        strtotime(date('d-m-Y',strtotime($batchdetails->end_date))), $counter);
                                 }
                                 echo $workingday = $days-($dayscount+$holidaycount);
                             }
@@ -352,10 +352,11 @@ else
     <?php echo Yii::t('app','Individual Student Attendance Report');?>
     <table width="100%" cellspacing="0" cellpadding="0" class="attendance_table">
         <tr style="background:#DCE6F1;">
-           <td width="165"><?php echo Yii::t('app','Sl No');?></td>
+            <td width="50"><?php echo Yii::t('app','Sl No');?></td>
             <td width="250"><?php echo Yii::t('app','Leave Type');?></td>
-            <td width="280"><?php echo Yii::t('app','Leave Date');?></td>
-            <td width="280"><?php echo Yii::t('app','Reason');?></td>
+            <td width="150"><?php echo Yii::t('app','Leave Date');?></td>
+            <td width="350"><?php echo Yii::t('app','Time Table');?></td>
+            <td width="150"><?php echo Yii::t('app','Reason');?></td>
         </tr>
         <?php
         $studleaves = StudentAttentance::model()->findAll('student_id=:x ORDER BY date ASC',array(':x'=>$student->id));
@@ -382,14 +383,26 @@ else
                 </td>
                  <!-- Individual Attendance row -->
                 <td>
-                    <?php 
+                    <?php
                     $settings=UserSettings::model()->findByAttributes(array('user_id'=>$admindetails->id));
                     if($settings!=NULL)
-                    {	
+                    {
                         $studleave->date = date($settings->displaydate,strtotime($studleave->date));
                     }
-                    echo $studleave->date; 
+                    echo $studleave->date;
                     ?>
+                </td>
+                <td>
+                        <?php
+                        if($studleave->timetable_id!=NULL)
+                        {
+                                echo $studleave->timetable->fieldClassSubject;
+                        }
+                        else
+                        {
+                                echo '-';
+                        }
+                        ?>
                 </td>
                 <td>
                     <?php
@@ -415,13 +428,13 @@ else
             <tr>
                 <td colspan="3" style="padding-top:10px; padding-bottom:10px;" align="center">
                     <strong><?php echo Yii::t('app','No leaves taken!'); ?></strong>
-            
+
 </td>
             </tr>
         <?php
         }
         ?>
     </table>
-    
+
      <!-- END Attendance table -->
 <?php } ?>

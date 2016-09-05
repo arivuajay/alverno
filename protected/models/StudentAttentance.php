@@ -58,6 +58,7 @@ class StudentAttentance extends CActiveRecord
 		// NOTE: you may need to adjust the relation name and the related
 		// class name for the relations automatically generated below.
 		return array(
+                    'timetable' => array(self::BELONGS_TO, 'TimetableEntries', 'timetable_id')
 		);
 	}
 
