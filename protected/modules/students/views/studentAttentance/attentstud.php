@@ -239,12 +239,12 @@ if (isset($_REQUEST['id'])) {
             $posts = Students::model()->findByAttributes(array('id' => $_REQUEST['id']));
             $class = 'class="even"';
             ?>
-        <tr <?php echo $class; ?> >
+        <tr align="center" valign="top" <?php echo $class; ?> >
             <?php /* ?> <td class="name"><?php echo $posts->first_name; ?></td><?php */ ?>
             <?php
             $holiday_1 = 0;
             for ($i = 1; $i <= $num; $i++) {
-                echo '<td style="height:10px;" align="center">';
+                echo '<td style="height:300px;" align="center" valign="top">';
 
                 $week = date('w', strtotime("{$_REQUEST['year']}-{$mon_num}-{$i}")) + 1;
                 $time_table = TimetableEntries::model()->findAll("batch_id = :batch AND weekday_id = :week", array(":batch" => $student->batch_id, ":week" => $week));
@@ -278,22 +278,22 @@ if (isset($_REQUEST['id'])) {
                             $cell = "";
                         } else if (array_key_exists($cell_date, $holiday_arr)) {
                             $holiday_1++;
-                            $cell = '<div style="background-color:#F00;width:15px;height:15px;display:block;margin-bottom:5px;"></div>';
+                            $cell = '<div style="background-color:#F00;color:#F00;width:15px;height:15px;display:block;margin-bottom:5px;">---</div>';
                         } else if (!in_array($cell_date, $days) and ! array_key_exists($cell_date, $holiday_arr)) {
 
-                            $cell = '<div style="width:15px; height:15px; background:#F2F2F2;display:block;margin-bottom:5px;"></div>';
+                            $cell = '<div style="width:15px; height:15px; background-color:#F2F2F2;color:#F2F2F2;display:block;margin-bottom:5px;">---</div>';
                         } else {
-                            $cell = '<div style="background-color:#093;width:15px;height:15px;display:block;margin-bottom:5px;"></div>';
+                            $cell = '<div style="background-color:#093;color:#093;width:15px;height:15px;display:block;margin-bottom:5px;">---</div>';
                         }
 
                         if (count($find) == 0) {
                             echo $cell;
                         } else {
-                            echo '<div style="width:13px;height:13px;display:table;margin-bottom:5px;text-align: center;border: 1px solid ' . $leave_types->colour_code . ';color:' . $leave_types->colour_code . '">' . $leave_types->label . '</div>';
+                            echo '<div style="width:13px;height:13px;display:table;margin-bottom:5px;text-align:center;border:1px solid ' . $leave_types->colour_code . ';color:' . $leave_types->colour_code . '">' . $leave_types->label . '</div>';
                         }
                     }
                 }else{
-                    echo '<div style="width:15px; height:15px; background:#F2F2F2;display:block;margin-bottom:5px;"></div>';
+                    echo '<div style="width:15px; height:15px;color:#F2F2F2;background-color:#F2F2F2;display:block;margin-bottom:5px;">---</div>';
                 }
                 echo '</td>';
             }
