@@ -326,6 +326,7 @@ class StudentAttentanceController extends RController
         $student = Students::model()->findByAttributes(array('id'=>$_REQUEST['id']));
 		$student = $student->first_name.' '.$student->last_name.' Attendance.pdf';
         # HTML2PDF has very similar syntax
+//        echo $this->renderPartial('attentstud', array(), true); exit;
         $html2pdf = Yii::app()->ePdf->HTML2PDF();
 		$html2pdf = new HTML2PDF('L', 'A4', 'en');
                 $html2pdf->setDefaultFont('freesans');
