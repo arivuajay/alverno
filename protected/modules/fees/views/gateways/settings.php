@@ -6,8 +6,8 @@
 ?>
 <table width="100%" border="0" cellspacing="0" cellpadding="0">
     <tr>
-        <td width="247" valign="top">    
-            <?php $this->renderPartial('/default/left_side');?>    
+        <td width="247" valign="top">
+            <?php $this->renderPartial('/default/left_side');?>
         </td>
         <td valign="top">
             <table width="100%" border="0" cellspacing="0" cellpadding="0">
@@ -20,6 +20,8 @@
 
 							if($current_payment_gateway==1){	// check which payment gateway
 								$this->renderPartial("application.modules.fees.views.gateways.settings._paypal", array('gateway'=>$gateway));
+							}else if($current_payment_gateway==5){	// check which payment gateway
+								$this->renderPartial("application.modules.fees.views.gateways.settings._ib", array('gateway'=>$gateway));
 							}
 							else{
 							?>

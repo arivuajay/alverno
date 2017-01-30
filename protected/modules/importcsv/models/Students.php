@@ -110,11 +110,11 @@ class Students extends CActiveRecord
 		if($this->$attribute!='')
 		{
 			$validate = User::model()->findByAttributes(array('email'=>$this->$attribute));
-			if($validate!=NULL)
+			/*if($validate!=NULL)
 			{
 			
 				$this->addError($attribute,'Email already in use');
-			}
+			}*/
 		}
     }
 

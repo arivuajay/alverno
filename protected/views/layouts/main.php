@@ -642,7 +642,24 @@ $("#book_drop").click(function(){
 			}
 				?>
           </li>
-
+          <li>
+            <?php 
+				
+				if(ModuleAccess::model()->check('Payroll'))
+				{ 	
+				 if((isset(Yii::app()->controller->module->id) and in_array(Yii::app()->controller->module->id,array('payroll'))))
+				 {
+					 
+				 	echo CHtml::link('<i class="fa fa fa-money icon-sidebar"></i></br>'.Yii::t('app','Payroll'), array('/payroll/default/payslip'),array('class'=>' active'));
+					
+				 }else{
+					 
+					 echo CHtml::link('<i class="fa fa fa-money icon-sidebar"></i></br>'.Yii::t('app','Payroll'), array('/payroll/default/payslip'),array('class'=>''));
+					
+				 }
+				}
+				?>
+          </li>
 
 
          </ul>

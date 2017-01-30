@@ -1,10 +1,10 @@
 <?php
 	$leftside = 'mailbox.views.default.left_side';
-	
-	$roles=Rights::getAssignedRoles(Yii::app()->user->Id); 	
+
+	$roles=Rights::getAssignedRoles(Yii::app()->user->Id);
 	if(sizeof($roles)==1 and key($roles) == 'parent')
-		$leftside = 'application.modules.parentportal.views.default.leftside'; 
-	
+		$leftside = 'application.modules.parentportal.views.default.leftside';
+
 	$this->renderPartial($leftside);
 
     $settings       = UserSettings::model()->findByAttributes(array('user_id'=>1));
@@ -21,7 +21,7 @@
         else if($particular->discount_type==2){ //amount
             $amount = $amount - $particular->discount_value;
         }
-        
+
         //apply tax
         if($particular->tax!=0){
             $tax    = FeeTaxes::model()->findByPk($particular->tax);
@@ -32,7 +32,7 @@
         }
         $invoice_amount   += $amount;
     }
-    
+
     $amount_payable = 0;
     $payments       = 0;
     $adjustments    = 0;
@@ -53,6 +53,11 @@
     }
 
     $amount_payable = $invoice_amount - ( $payments + $adjustments );
+
+    if($invoice->is_paid == 0 && $amount_payable <= 0){
+        $invoice->is_paid = 1;
+        $invoice->update();
+    }
 ?>
 <style>
 table, th, td {
@@ -66,11 +71,11 @@ table, th, td {
     </div>
     <div class="breadcrumb-wrapper">
         <span class="label"><?php echo Yii::t("app", "You are here");?>:</span>
-        <ol class="breadcrumb">                
+        <ol class="breadcrumb">
             <li class="active"><?php echo Yii::t("app", "Invoices")?></li>
         </ol>
-    </div>    
-    <div class="clearfix"></div>    
+    </div>
+    <div class="clearfix"></div>
 </div>
 
 <div class="contentpanel">
@@ -98,14 +103,14 @@ table, th, td {
     ?>
 </div>
 
-<div class="contentpanel"> 
-    <div class="panel-heading">    
+<div class="contentpanel">
+    <div class="panel-heading">
 		<h3 class="panel-title"><?php echo Yii::t('app','Invoice')." - #".$invoice->id;?></h3>
         <div style="position:relative; top:-30px; right:3px; float:right;">
 			<?php echo CHtml::link(Yii::t("app", "Generate PDF"), array("/fees/myInvoices/print", "id"=>$invoice->id), array('class'=>"btn btn-primary", 'target'=>"_blank"));?>
         </div>
-    </div> 
-    <div class="people-item">  
+    </div>
+    <div class="people-item">
 		<div class="table-responsive">
             <table class="table table-hover">
                 <tr>
@@ -113,7 +118,7 @@ table, th, td {
                     <td> <?php echo $invoice->id;?></td>
                 </tr>
                 <?php
-                    if(FormFields::model()->isVisible("fullname", "Students", "forParentPortal")){                      
+                    if(FormFields::model()->isVisible("fullname", "Students", "forParentPortal")){
                 ?>
                     <tr>
                         <td><strong><?php echo Yii::t("app", "Recipient");?></strong></td>
@@ -133,18 +138,18 @@ table, th, td {
                                     echo CHtml::link($display_name, array('/parentportal/default/studentprofile', 'id'=>$invoice->table_id));
                                 else
                                     echo $display_name;
-                            }       
+                            }
                             else{
                                 echo $display_name;
                             }
                         ?>
                         </td>
                     </tr>
-                <?php } ?> 
+                <?php } ?>
                 <tr>
                     <td><strong><?php echo Yii::t("app", "Invoice Date");?></strong>
                     </td>
-                    <td> 
+                    <td>
                         <?php
                             if($settings!=NULL)
                                 echo date($settings->displaydate, strtotime($invoice->created_at));
@@ -168,9 +173,9 @@ table, th, td {
                 <tr>
                     <td><strong><?php echo Yii::t("app", "Amount Payable");?></strong></td>
                     <td><?php echo number_format($amount_payable, 2);?></td>
-                </tr>             
+                </tr>
                 <tr>
-                    <td><strong><?php echo Yii::t("app", "Due Date");?></strong> </td>                
+                    <td><strong><?php echo Yii::t("app", "Due Date");?></strong> </td>
                     <td>
                     <?php
                         if($settings!=NULL)
@@ -191,19 +196,19 @@ table, th, td {
                         ?>
                     </td>
                 </tr>
-            </table>          
+            </table>
 		</div>
-        
+
         <div class="table-responsive">
             <table class="table table-hover">
                 <tbody>
                     <tr class="pdtab-h">
                         <td height="18" align="center">#</td>
                         <td align="center"><?php echo Yii::t('app','Particular'); ?></td>
-                        <td height="18"><?php echo Yii::t('app','Description'); ?></td>                                            
+                        <td height="18"><?php echo Yii::t('app','Description'); ?></td>
                         <td align="center"><?php echo Yii::t('app','Unit Price'); ?></td>
                         <td align="center"><?php echo Yii::t('app','Discount'); ?></td>
-                        <td align="center"><?php echo Yii::t('app','Tax'); ?></td>                                            
+                        <td align="center"><?php echo Yii::t('app','Tax'); ?></td>
                         <td align="center"><?php echo Yii::t('app','Amount'); ?></td>
                     </tr>
                     <?php
@@ -227,7 +232,7 @@ table, th, td {
                             ?>
                         </td>
                         <td align="center">
-                            <?php 
+                            <?php
                                 $tax    = FeeTaxes::model()->findByPk($particular->tax);
                                 if($tax!=NULL)
                                     echo $tax->value." %";
@@ -249,7 +254,7 @@ table, th, td {
                                     $amount = $amount - $particular->discount_value;
                                     $discount_total += $particular->discount_value;
                                 }
-                                
+
                                 //apply tax
                                 if($particular->tax!=0){
                                     $tax    = FeeTaxes::model()->findByPk($particular->tax);
@@ -259,7 +264,7 @@ table, th, td {
                                         $tax_total  += $itax;
                                     }
                                 }
-                                
+
                                 echo number_format($amount, 2);
                             ?>
                         </td>
@@ -283,33 +288,33 @@ table, th, td {
                     <tr>
                         <td colspan="6" align="right" style="padding-right:10px;"><strong><?php echo Yii::t('app','Total').(($configuration!=NULL)?" (".$configuration->config_value.")":''); ?></strong></td>
                         <td align="center"><?php echo number_format($amount_total, 2);?></td>
-                    </tr>                                       
+                    </tr>
                 </tbody>
             </table>
-        </div>        
+        </div>
 	</div>
 </div>
 
 
-<div class="contentpanel"> 
-    <div class="panel-heading">    
-        <h3 class="panel-title"><?php echo Yii::t('app','Transactions');?></h3>        
-    </div> 
-    <div class="people-item">  
+<div class="contentpanel">
+    <div class="panel-heading">
+        <h3 class="panel-title"><?php echo Yii::t('app','Transactions');?></h3>
+    </div>
+    <div class="people-item">
         <div class="table-responsive">
             <table class="table table-hover">
                 <tbody>
                     <tr class="pdtab-h">
                         <td align="center">#</td>
-                        <td height="18"><?php echo Yii::t('app','Date'); ?> *</td>                                            
+                        <td height="18"><?php echo Yii::t('app','Date'); ?> *</td>
                         <td align="center"><?php echo Yii::t('app','Type'); ?></td>
                         <td align="center"><?php echo Yii::t('app','Transaction ID'); ?></td>
-                        <td align="center"><?php echo Yii::t('app','Description'); ?></td>                                            
+                        <td align="center"><?php echo Yii::t('app','Description'); ?></td>
                         <td align="center"><?php echo Yii::t('app','Amount'); ?> *</td>
                         <td align="center"><?php echo Yii::t('app','Proof'); ?></td>
                         <td align="center"><?php echo Yii::t('app','Status'); ?></td>
                     </tr>
-                    
+
                     <?php
                     foreach($alltransactions as $index=>$ctransaction){
                     ?>
@@ -322,7 +327,7 @@ table, th, td {
                                 else
                                     echo $ctransaction->date;
                             ?>
-                        </td>                                            
+                        </td>
                         <td align="center"><?php echo $ctransaction->transactionType;?></td>
                         <td align="center"><?php echo (($ctransaction->transaction_id!=NULL)?$ctransaction->transaction_id:"-");?></td>
                         <td align="center"><?php echo (($ctransaction->description!=NULL)?$ctransaction->description:"-");?></td>
@@ -347,7 +352,7 @@ table, th, td {
                     </tr>
                     <?php
                     }
-                    ?>                    
+                    ?>
                 </tbody>
             </table>
         </div>

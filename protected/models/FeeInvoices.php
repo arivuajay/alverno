@@ -23,7 +23,7 @@ class FeeInvoices extends CActiveRecord
 {
 	public $course;
 	public $batch;
-	
+
 	/**
 	 * Returns the static model of the specified AR class.
 	 * @return FeeInvoices the static model class

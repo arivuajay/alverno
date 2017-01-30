@@ -3,8 +3,8 @@
 class SiteController extends RController
 {
 	public $layout='//layouts/none';
-	
-	
+
+
 	/**
 	 * Declares class-based actions.
 	 */
@@ -32,7 +32,7 @@ class SiteController extends RController
 	{
 		// renders the view file 'protected/views/site/index.php'
 		// using the default layout 'protected/views/layouts/main.php'
-		$this->layout = 'column2';	
+		$this->layout = 'column2';
 		$this->render('index');
 	}
 
@@ -85,7 +85,7 @@ class SiteController extends RController
 		{
 			$this->redirect('index.php?r=configurations/setup');
 		}
-		
+
 		$model=new LoginForm;
 
 		// if it is ajax validation request
@@ -103,7 +103,7 @@ class SiteController extends RController
 			if($model->validate() && $model->login())
 			{
 				$this->redirect(Yii::app()->user->returnUrl);
-				
+
 			}
 		}
 		// display the login form
@@ -122,23 +122,23 @@ class SiteController extends RController
 	{
 		if(isset($_POST['char']) and $_POST['char']!=NULL)
 		{
-		
+
 		$this->layout='column2';
 		$model=new Students;
 		$criteria = new CDbCriteria;
-		
-		if((substr_count( $_POST['char'],' '))==0){ 	
+
+		if((substr_count( $_POST['char'],' '))==0){
 			$criteria->condition='first_name LIKE :name or last_name LIKE :name or middle_name LIKE :name';
 			$criteria->params[':name'] = $_POST['char'].'%';
 		}else if((substr_count( $_POST['char'],' '))>=1){
-			$name=explode(" ",$_POST['char']);			
+			$name=explode(" ",$_POST['char']);
 			$criteria->condition='first_name LIKE :name or last_name LIKE :name or middle_name LIKE :name';
 			$criteria->params[':name'] = $name[0].'%';
 			$criteria->condition=$criteria->condition.' and '.'(first_name LIKE :name1 or last_name LIKE :name1 or middle_name LIKE :name1)';
-			$criteria->params[':name1'] = $name[1].'%';		 	
+			$criteria->params[':name1'] = $name[1].'%';
 		}
-		
-		
+
+
 		$criteria->addSearchCondition('is_active', 1);
 		$criteria->addSearchCondition('is_deleted', 0);
 		$criteria->order = 'first_name ASC';
@@ -147,36 +147,36 @@ class SiteController extends RController
         $pages->setPageSize(Yii::app()->params['listPerPage']);
         $pages->applyLimit($criteria);  // the trick is here!
 		$posts = Students::model()->findAll($criteria);
-		
+
 		$emp=new Employees;
 		$criteria_1 = new CDbCriteria;
-		
-		if((substr_count( $_POST['char'],' '))==0){ 	
+
+		if((substr_count( $_POST['char'],' '))==0){
 			$criteria_1->condition='first_name LIKE :name or last_name LIKE :name or middle_name LIKE :name';
 			$criteria_1->params[':name'] = $_POST['char'].'%';
 		}else if((substr_count( $_POST['char'],' '))>=1){
-			$name=explode(" ",$_POST['char']);			
+			$name=explode(" ",$_POST['char']);
 			$criteria_1->condition='first_name LIKE :name or last_name LIKE :name or middle_name LIKE :name';
 			$criteria_1->params[':name'] = $name[0].'%';
 			$criteria_1->condition=$criteria_1->condition.' and '.'(first_name LIKE :name1 or last_name LIKE :name1 or middle_name LIKE :name1)';
-			$criteria_1->params[':name1'] = $name[1].'%';		 	
+			$criteria_1->params[':name1'] = $name[1].'%';
 		}
-		
+
 		//$criteria_1->addSearchCondition('is_deleted', 0);
 		$criteria_1->order = 'first_name ASC';
 		$tot = Employees::model()->count($criteria_1);
 		$pages_1 = new CPagination($total);
         $pages_1->setPageSize(Yii::app()->params['listPerPage']);
         $pages_1->applyLimit($criteria_1);  // the trick is here!
-		$posts_1 = Employees::model()->findAll($criteria_1);		
-		 
+		$posts_1 = Employees::model()->findAll($criteria_1);
+
 		$this->render('search',array('model'=>$model,
 		'list'=>$posts,
 		'posts'=>$posts_1,
 		'pages' => $pages,
 		'item_count'=>$total,
 		'page_size'=>10,)) ;
-		
+
 		//$stud = Students::model()->findAll('first_name LIKE '.$_POST['char']);
 		//echo count($stud);
 		//exit;
@@ -187,16 +187,16 @@ class SiteController extends RController
 			$this->redirect(Yii::app()->user->returnUrl);
 		}
 	}
-	
+
 	public function actionStudent()
 	 {
 		if(Yii::app()->request->isAjaxRequest)
 		{
-		$Student = Students::model()->findByAttributes(array('id'=>$_REQUEST['id'])); 
+		$Student = Students::model()->findByAttributes(array('id'=>$_REQUEST['id']));
 		echo $Student->studentFullName("forStudentProfile").'@#$`'.$_REQUEST['id'];
-		
+
 		}
-		
+
 	 }
 	public function actionExplorer()
 	{
@@ -209,11 +209,11 @@ class SiteController extends RController
 	 {
 		if(Yii::app()->request->isAjaxRequest)
 		 {
-		
+
 		$name='';
 	    $bat='';
-	    $ad='';  		  
-		    
+	    $ad='';
+
 		$model=new Students;
 		$criteria = new CDbCriteria;
 		$criteria->compare('is_deleted',0);  // normal DB field
@@ -224,21 +224,21 @@ class SiteController extends RController
 		 $criteria->condition=$criteria->condition.' and first_name LIKE :match';
 		 $criteria->params[':match'] = $_REQUEST['val'].'%';
 		}
-		
+
 		if(isset($_REQUEST['name']) and $_REQUEST['name']!=NULL)
 		{
 		 $criteria->condition=$criteria->condition.' and '.'first_name LIKE :name';
 		 $criteria->params[':name'] = $_REQUEST['name'].'%';
 		 $name=$_REQUEST['name'];
 		}
-		
+
 		if(isset($_REQUEST['admissionnumber']) and $_REQUEST['admissionnumber']!=NULL)
 		{
 		 $criteria->condition=$criteria->condition.' and '.'admission_no LIKE :admissionnumber';
 		 $criteria->params[':admissionnumber'] = $_REQUEST['admissionnumber'].'%';
 		 $ad=$_REQUEST['admissionnumber'];
 		}
-		
+
 		if(isset($_REQUEST['Students']['batch_id']) and $_REQUEST['Students']['batch_id']!=NULL)
 		{
 			$model->batch_id = $_REQUEST['Students']['batch_id'];
@@ -246,55 +246,55 @@ class SiteController extends RController
 		    $criteria->params[':batch_id'] = $_REQUEST['Students']['batch_id'];
 			$bat=$_REQUEST['Students']['batch_id'];
 		}
-		
+
 		if(isset($_REQUEST['Students']['gender']) and $_REQUEST['Students']['gender']!=NULL)
 		{
 			$model->gender = $_REQUEST['Students']['gender'];
 			$criteria->condition=$criteria->condition.' and '.'gender = :gender';
 		    $criteria->params[':gender'] = $_REQUEST['Students']['gender'];
 		}
-		
+
 		if(isset($_REQUEST['Students']['blood_group']) and $_REQUEST['Students']['blood_group']!=NULL)
 		{
 			$model->blood_group = $_REQUEST['Students']['blood_group'];
 			$criteria->condition=$criteria->condition.' and '.'blood_group = :blood_group';
 		    $criteria->params[':blood_group'] = $_REQUEST['Students']['blood_group'];
 		}
-		
+
 		if(isset($_REQUEST['Students']['nationality_id']) and $_REQUEST['Students']['nationality_id']!=NULL)
 		{
 			$model->nationality_id = $_REQUEST['Students']['nationality_id'];
 			$criteria->condition=$criteria->condition.' and '.'nationality_id = :nationality_id';
 		    $criteria->params[':nationality_id'] = $_REQUEST['Students']['nationality_id'];
 		}
-		
-		
+
+
 		if(isset($_REQUEST['Students']['dobrange']) and $_REQUEST['Students']['dobrange']!=NULL)
 		{
-			  
+
 			  $model->dobrange = $_REQUEST['Students']['dobrange'] ;
 			  if(isset($_REQUEST['Students']['date_of_birth']) and $_REQUEST['Students']['date_of_birth']!=NULL)
 			  {
 				  if($_REQUEST['Students']['dobrange']=='2')
-				  {  
+				  {
 					  $model->date_of_birth = $_REQUEST['Students']['date_of_birth'];
 					  $criteria->condition=$criteria->condition.' and '.'date_of_birth = :date_of_birth';
 					  $criteria->params[':date_of_birth'] = date('Y-m-d',strtotime($_REQUEST['Students']['date_of_birth']));
 				  }
 				  if($_REQUEST['Students']['dobrange']=='1')
-				  {  
-				  
+				  {
+
 					  $model->date_of_birth = $_REQUEST['Students']['date_of_birth'];
 					  $criteria->condition=$criteria->condition.' and '.'date_of_birth < :date_of_birth';
 					  $criteria->params[':date_of_birth'] = date('Y-m-d',strtotime($_REQUEST['Students']['date_of_birth']));
 				  }
 				  if($_REQUEST['Students']['dobrange']=='3')
-				  {  
+				  {
 					  $model->date_of_birth = $_REQUEST['Students']['date_of_birth'];
 					  $criteria->condition=$criteria->condition.' and '.'date_of_birth > :date_of_birth';
 					  $criteria->params[':date_of_birth'] = date('Y-m-d',strtotime($_REQUEST['Students']['date_of_birth']));
 				  }
-				  
+
 			  }
 		}
 		elseif(isset($_REQUEST['Students']['dobrange']) and $_REQUEST['Students']['dobrange']==NULL)
@@ -306,34 +306,34 @@ class SiteController extends RController
 				  $criteria->params[':date_of_birth'] = date('Y-m-d',strtotime($_REQUEST['Students']['date_of_birth']));
 			  }
 		}
-		
-		
+
+
 		if(isset($_REQUEST['Students']['admissionrange']) and $_REQUEST['Students']['admissionrange']!=NULL)
 		{
-			  
+
 			  $model->admissionrange = $_REQUEST['Students']['admissionrange'] ;
 			  if(isset($_REQUEST['Students']['admission_date']) and $_REQUEST['Students']['admission_date']!=NULL)
 			  {
 				  if($_REQUEST['Students']['admissionrange']=='2')
-				  {  
+				  {
 					  $model->admission_date = $_REQUEST['Students']['admission_date'];
 					  $criteria->condition=$criteria->condition.' and '.'admission_date = :admission_date';
 					  $criteria->params[':admission_date'] = date('Y-m-d',strtotime($_REQUEST['Students']['admission_date']));
 				  }
 				  if($_REQUEST['Students']['admissionrange']=='1')
-				  {  
-				  
+				  {
+
 					  $model->admission_date = $_REQUEST['Students']['admission_date'];
 					  $criteria->condition=$criteria->condition.' and '.'admission_date < :admission_date';
 					  $criteria->params[':admission_date'] = date('Y-m-d',strtotime($_REQUEST['Students']['admission_date']));
 				  }
 				  if($_REQUEST['Students']['admissionrange']=='3')
-				  {  
+				  {
 					  $model->admission_date = $_REQUEST['Students']['admission_date'];
 					  $criteria->condition=$criteria->condition.' and '.'admission_date > :admission_date';
 					  $criteria->params[':admission_date'] = date('Y-m-d',strtotime($_REQUEST['Students']['admission_date']));
 				  }
-				  
+
 			  }
 		}
 		elseif(isset($_REQUEST['Students']['admissionrange']) and $_REQUEST['Students']['admissionrange']==NULL)
@@ -345,35 +345,35 @@ class SiteController extends RController
 				  $criteria->params[':admission_date'] = date('Y-m-d',strtotime($_REQUEST['Students']['admission_date']));
 			  }
 		}
-		
+
 		if(isset($_REQUEST['Students']['status']) and $_REQUEST['Students']['status']!=NULL)
 		{
 			$model->status = $_REQUEST['Students']['status'];
 			$criteria->condition=$criteria->condition.' and '.'is_active = :status';
 		    $criteria->params[':status'] = $_REQUEST['Students']['status'];
 		}
-		
+
 		$criteria->order = 'first_name ASC';
-	
+
 		$total = Students::model()->count($criteria);
-		
+
 		//$pages = new CPagination($total);
         //$pages->setPageSize(Yii::app()->params['listPerPage']);
        //$pages->applyLimit($criteria);  // the trick is here!
 		$posts = Students::model()->findAll($criteria);
-		
-		 
+
+
 		$this->renderPartial('student_panel',array('model'=>$model,
 		'list'=>$posts,
 		//'pages' => $pages,
 		//'item_count'=>$total,'name'=>$name,'ad'=>$ad,'bat'=>$bat,
 		//'page_size'=>10,
 		)) ;
-		
+
 		 }
-	 
+
 	 }
-	 public function actionAutocomplete() 
+	 public function actionAutocomplete()
 	 {
 	  if (isset($_GET['term'])) {
 		$criteria=new CDbCriteria;
@@ -383,7 +383,7 @@ class SiteController extends RController
 		$criteria->addSearchCondition('is_deleted', 0);
 		$criteria->order = 'first_name ASC';
 		$Students = Students::model()->findAll($criteria);
-	
+
 		$return_array = array();
 		foreach($Students as $Student) {
 		  $return_array[] = array(
@@ -395,8 +395,8 @@ class SiteController extends RController
 		Yii::app()->end();
 	  }
 	}
-	
-	public function actionParentautocomplete() 
+
+	public function actionParentautocomplete()
 	 {
 	  if (isset($_GET['term'])) {
 		$criteria=new CDbCriteria;
@@ -404,7 +404,7 @@ class SiteController extends RController
 		$criteria->condition = "first_name   like '" . $_GET['term'] . "%'"." or last_name   like '" . $_GET['term'] . "%'";
 		$criteria->order = 'first_name ASC';
 		$guardians = Guardians::model()->findAll($criteria);
-	
+
 		$return_array = array();
 		foreach($guardians as $guardian) {
 		  $return_array[] = array(
@@ -416,8 +416,8 @@ class SiteController extends RController
 		Yii::app()->end();
 	  }
 	}
-	
-	public function actionParentemailcomplete() 
+
+	public function actionParentemailcomplete()
 	 {
 	  if (isset($_GET['term'])) {
 		$criteria=new CDbCriteria;
@@ -436,8 +436,8 @@ class SiteController extends RController
 		Yii::app()->end();
 	  }
 	}
-	
-	public function actionEmployeeautocomplete() 
+
+	public function actionEmployeeautocomplete()
 	 {
 	  if (isset($_GET['term'])) {
 		$criteria=new CDbCriteria;
@@ -446,7 +446,7 @@ class SiteController extends RController
 		$criteria->addSearchCondition('is_deleted', 0);
 		$criteria->order = 'first_name ASC';
 		$employees = Employees::model()->findAll($criteria);
-	
+
 		$return_array = array();
 		foreach($employees as $employee) {
 		  $return_array[] = array(
@@ -457,18 +457,18 @@ class SiteController extends RController
 		echo CJSON::encode($return_array);
 	  }
 	}
-	
+
 	public function actionEmanage()
 	 {
 		 if(Yii::app()->request->isAjaxRequest)
 		 {
-		
+
 		$name='';
 	    $bat='';
-	    $ad='';  		  
-		    
-		
-		 
+	    $ad='';
+
+
+
 		$model=new Employees;
 		$criteria = new CDbCriteria;
 		$criteria->compare('is_deleted',0);
@@ -479,21 +479,21 @@ class SiteController extends RController
 		 $criteria->condition=$criteria->condition.' and '.'first_name LIKE :match';
 		 $criteria->params[':match'] = $_REQUEST['val'].'%';
 		}
-		
+
 		if(isset($_REQUEST['ename']) and $_REQUEST['ename']!=NULL)
 		{
 		 $criteria->condition=$criteria->condition.' and '.'first_name LIKE :name';
 		 $criteria->params[':name'] = $_REQUEST['ename'].'%';
 		 $name=$_REQUEST['ename'];
 		}
-		
+
 		if(isset($_REQUEST['employeenumber']) and $_REQUEST['employeenumber']!=NULL)
 		{
 		 $criteria->condition=$criteria->condition.' and '.'employee_number LIKE :employeenumber';
 		 $criteria->params[':employeenumber'] = $_REQUEST['employeenumber'].'%';
 		 $ad=$_REQUEST['employeenumber'];
 		}
-		
+
 		if(isset($_REQUEST['Employees']['employee_department_id']) and $_REQUEST['Employees']['employee_department_id']!=NULL)
 		{
 			$model->employee_department_id = $_REQUEST['Employees']['employee_department_id'];
@@ -501,85 +501,85 @@ class SiteController extends RController
 		    $criteria->params[':employee_department_id'] = $_REQUEST['Employees']['employee_department_id'];
 			$bat=$_REQUEST['Employees']['employee_department_id'];
 		}
-		
+
 		if(isset($_REQUEST['Employees']['employee_category_id']) and $_REQUEST['Employees']['employee_category_id']!=NULL)
 		{
 			$model->employee_category_id = $_REQUEST['Employees']['employee_category_id'];
 			$criteria->condition=$criteria->condition.' and '.'employee_category_id = :employee_category_id';
 		    $criteria->params[':employee_category_id'] = $_REQUEST['Employees']['employee_category_id'];
 		}
-		
+
 		if(isset($_REQUEST['Employees']['employee_position_id']) and $_REQUEST['Employees']['employee_position_id']!=NULL)
 		{
 			$model->employee_position_id = $_REQUEST['Employees']['employee_position_id'];
 			$criteria->condition=$criteria->condition.' and '.'employee_position_id = :employee_position_id';
 		    $criteria->params[':employee_position_id'] = $_REQUEST['Employees']['employee_position_id'];
 		}
-		
-		
+
+
 		if(isset($_REQUEST['Employees']['employee_grade_id']) and $_REQUEST['Employees']['employee_grade_id']!=NULL)
 		{
 			$model->employee_grade_id = $_REQUEST['Employees']['employee_grade_id'];
 			$criteria->condition=$criteria->condition.' and '.'employee_grade_id = :employee_grade_id';
 		    $criteria->params[':employee_grade_id'] = $_REQUEST['Employees']['employee_grade_id'];
 		}
-		
-		
+
+
 		if(isset($_REQUEST['Employees']['gender']) and $_REQUEST['Employees']['gender']!=NULL)
 		{
 			$model->gender = $_REQUEST['Employees']['gender'];
 			$criteria->condition=$criteria->condition.' and '.'gender = :gender';
 		    $criteria->params[':gender'] = $_REQUEST['Employees']['gender'];
 		}
-		
+
 		if(isset($_REQUEST['Employees']['marital_status']) and $_REQUEST['Employees']['marital_status']!=NULL)
 		{
 			$model->marital_status = $_REQUEST['Employees']['marital_status'];
 			$criteria->condition=$criteria->condition.' and '.'marital_status = :marital_status';
 		    $criteria->params[':marital_status'] = $_REQUEST['Employees']['marital_status'];
 		}
-		
+
 		if(isset($_REQUEST['Employees']['blood_group']) and $_REQUEST['Employees']['blood_group']!=NULL)
 		{
 			$model->blood_group = $_REQUEST['Employees']['blood_group'];
 			$criteria->condition=$criteria->condition.' and '.'blood_group = :blood_group';
 		    $criteria->params[':blood_group'] = $_REQUEST['Employees']['blood_group'];
 		}
-		
+
 		if(isset($_REQUEST['Employees']['nationality_id']) and $_REQUEST['Employees']['nationality_id']!=NULL)
 		{
 			$model->nationality_id = $_REQUEST['Employees']['nationality_id'];
 			$criteria->condition=$criteria->condition.' and '.'nationality_id = :nationality_id';
 		    $criteria->params[':nationality_id'] = $_REQUEST['Employees']['nationality_id'];
 		}
-		
-		
+
+
 		if(isset($_REQUEST['Employees']['dobrange']) and $_REQUEST['Employees']['dobrange']!=NULL)
 		{
-			  
+
 			  $model->dobrange = $_REQUEST['Employees']['dobrange'] ;
 			  if(isset($_REQUEST['Employees']['date_of_birth']) and $_REQUEST['Employees']['date_of_birth']!=NULL)
 			  {
 				  if($_REQUEST['Employees']['dobrange']=='2')
-				  {  
+				  {
 					  $model->date_of_birth = $_REQUEST['Employees']['date_of_birth'];
 					  $criteria->condition=$criteria->condition.' and '.'date_of_birth = :date_of_birth';
 					  $criteria->params[':date_of_birth'] = date('Y-m-d',strtotime($_REQUEST['Employees']['date_of_birth']));
 				  }
 				  if($_REQUEST['Employees']['dobrange']=='1')
-				  {  
-				  
+				  {
+
 					  $model->date_of_birth = $_REQUEST['Employees']['date_of_birth'];
 					  $criteria->condition=$criteria->condition.' and '.'date_of_birth < :date_of_birth';
 					  $criteria->params[':date_of_birth'] = date('Y-m-d',strtotime($_REQUEST['Employees']['date_of_birth']));
 				  }
 				  if($_REQUEST['Employees']['dobrange']=='3')
-				  {  
+				  {
 					  $model->date_of_birth = $_REQUEST['Employees']['date_of_birth'];
 					  $criteria->condition=$criteria->condition.' and '.'date_of_birth > :date_of_birth';
 					  $criteria->params[':date_of_birth'] = date('Y-m-d',strtotime($_REQUEST['Employees']['date_of_birth']));
 				  }
-				  
+
 			  }
 		}
 		elseif(isset($_REQUEST['Employees']['dobrange']) and $_REQUEST['Employees']['dobrange']==NULL)
@@ -591,34 +591,34 @@ class SiteController extends RController
 				  $criteria->params[':date_of_birth'] = date('Y-m-d',strtotime($_REQUEST['Employees']['date_of_birth']));
 			  }
 		}
-		
-		
+
+
 		if(isset($_REQUEST['Employees']['joinrange']) and $_REQUEST['Employees']['joinrange']!=NULL)
 		{
-			  
+
 			  $model->joinrange = $_REQUEST['Employees']['joinrange'] ;
 			  if(isset($_REQUEST['Employees']['joining_date']) and $_REQUEST['Employees']['joining_date']!=NULL)
 			  {
 				  if($_REQUEST['Employees']['joinrange']=='2')
-				  {  
+				  {
 					  $model->joining_date = $_REQUEST['Employees']['joining_date'];
 					  $criteria->condition=$criteria->condition.' and '.'joining_date = :joining_date';
 					  $criteria->params[':joining_date'] = date('Y-m-d',strtotime($_REQUEST['Employees']['joining_date']));
 				  }
 				  if($_REQUEST['Employees']['joinrange']=='1')
-				  {  
-				  
+				  {
+
 					  $model->joining_date = $_REQUEST['Employees']['joining_date'];
 					  $criteria->condition=$criteria->condition.' and '.'joining_date < :joining_date';
 					  $criteria->params[':joining_date'] = date('Y-m-d',strtotime($_REQUEST['Employees']['joining_date']));
 				  }
 				  if($_REQUEST['Employees']['joinrange']=='3')
-				  {  
+				  {
 					  $model->joining_date = $_REQUEST['Employees']['joining_date'];
 					  $criteria->condition=$criteria->condition.' and '.'joining_date > :joining_date';
 					  $criteria->params[':joining_date'] = date('Y-m-d',strtotime($_REQUEST['Employees']['joining_date']));
 				  }
-				  
+
 			  }
 		}
 		elseif(isset($_REQUEST['Employees']['joinrange']) and $_REQUEST['Employees']['joinrange']==NULL)
@@ -630,24 +630,24 @@ class SiteController extends RController
 				  $criteria->params[':joining_date'] = date('Y-m-d',strtotime($_REQUEST['Employees']['joining_date']));
 			  }
 		}
-		
+
 		if(isset($_REQUEST['Employees']['status']) and $_REQUEST['Employees']['status']!=NULL)
 		{
 			$model->status = $_REQUEST['Employees']['status'];
 			$criteria->condition=$criteria->condition.' and '.'is_active = :status';
 		    $criteria->params[':status'] = $_REQUEST['Employees']['status'];
 		}
-		
-		
+
+
 		$criteria->order = 'first_name ASC';
-		
+
 		$total = Employees::model()->count($criteria);
 		//$pages = new CPagination($total);
         //$pages->setPageSize(Yii::app()->params['listPerPage']);
         //$pages->applyLimit($criteria);  // the trick is here!
 		$posts = Employees::model()->findAll($criteria);
-		
-		 
+
+
 		$this->renderPartial('user_panel',array('model'=>$model,
 
 		'list'=>$posts,
@@ -656,27 +656,27 @@ class SiteController extends RController
 		//'page_size'=>Yii::app()->params['listPerPage'],
 		)
 		) ;
-	 
-		
-		
-		
+
+
+
+
 		 }
-	 
+
 	 }
-	 
+
 	 public function actionBmanage()
 	 {
 		 $this->renderPartial('batch_panel',array());
 	 }
-	 
+
 	 public function actionBookmark()
 	 {
-		 
+
 			 echo Yii::t("app",'saved');
-		 
+
 	 }
-         
-         
+
+
          public function actionOffline()
          {
              $this->render('offline');

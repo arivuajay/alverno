@@ -13,6 +13,7 @@
  * @property string $amount
  * @property string $proof
  * @property integer $is_deleted
+ * @property string $transaction_log
  */
 class FeeTransactions extends CActiveRecord
 {
@@ -48,7 +49,7 @@ class FeeTransactions extends CActiveRecord
 			array('amount', 'type', 'type'=>'float', 'message'=>Yii::t('app', '{attribute} must be a valid number')),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
-			array('id, invoice_id, date, payment_type, transaction_id, description, amount, proof, is_deleted', 'safe', 'on'=>'search'),
+			array('id, invoice_id, date, payment_type, transaction_id, description, amount, proof, is_deleted, transaction_log', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -78,6 +79,7 @@ class FeeTransactions extends CActiveRecord
 			'amount' => Yii::t('app', 'Amount'),
 			'proof' => Yii::t('app', 'Proof'),
 			'is_deleted' => Yii::t('app', 'Is Deleted'),
+			'transaction_log' => Yii::t('app', 'Transaction Log'),
 		);
 	}
 
@@ -106,7 +108,7 @@ class FeeTransactions extends CActiveRecord
 			'criteria'=>$criteria,
 		));
 	}
-	
+
 	public function getTransactionType(){
 		$paymenttype	= FeePaymentTypes::model()->findByPk($this->payment_type);
 		if($paymenttype)

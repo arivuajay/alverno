@@ -113,7 +113,7 @@ class Students extends CActiveRecord
 		{
 			if(($validate!=NULL and $validate->id!=$this->uid) or $employee!=NULL or $guardians!=NULL)
 			{
-				$this->addError($attribute,Yii::t("app",'Email ').'"'.$this->$attribute.'"'.Yii::t('app',' has already been taken'));
+				//$this->addError($attribute,Yii::t("app",'Email ').'"'.$this->$attribute.'"'.Yii::t('app',' has already been taken'));
 			}
 		}
     }
