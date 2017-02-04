@@ -116,8 +116,11 @@ class MyInvoicesController extends RController {
 
                 if (isset($_POST['IbForm'])) {
                     $gateway->attributes = $_POST['IbForm'];
+                    $gateway->pay_mode = $_POST['pay_mode'];
+
                     if ($gateway->validate()) {
                         $paymentInfo = array();
+                        $paymentInfo['Order']['payMode'] = $gateway->pay_mode;
                         $paymentInfo['Order']['theTotal'] = $gateway->amount;
                         $paymentInfo['Order']['serviceCharge'] = $gateway->service_charge;
                         $paymentInfo['Order']['description'] = $invoice->name;

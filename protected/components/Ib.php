@@ -17,14 +17,16 @@ class Ib extends CComponent {
     public $returnURL = '/fees/ib/confirm';
     public $s2SReturnURL = 'https://tpslvksrv6046/LoginModule/Test.jsp';
 
+    protected $APICred = [
+        'CC' => ['mrctCode' => 'L135123','scheme_code'=>'Vani','key'=>'8000453122IFPXYK','iv'=>'9534092042EKOCTP'],
+        'DC' => ['mrctCode' => 'L135124','scheme_code'=>'Vani','key'=>'4562285868SXTCYY','iv'=>'5290732622QXGLGP'],
+        'NB' => ['mrctCode' => 'L131352','scheme_code'=>'Vani ','key'=>'3556621102SUSRVD','iv'=>'7916019637XOEHMY'],
+    ];
+
     public function init() {
         $ibconfig = IbConfig::model()->findByPk(1);
-        $this->mrctCode = $ibconfig->mrctCode;
         $this->bankCode = $ibconfig->bankCode;
         $this->locatorURL = IbConfig::getLocurlvalue($ibconfig->locatorURL);
-        $this->scheme_code = $ibconfig->scheme_code;
-        $this->key = $ibconfig->key;
-        $this->iv = $ibconfig->iv;
 
         if ($ibconfig->currencyType)
             $this->currencyType = $ibconfig->currencyType;
@@ -36,6 +38,17 @@ class Ib extends CComponent {
 
     public function addRequestParam($paymentInfo = array()) {
         $fullName = trim($paymentInfo['Member']['first_name'] . " " . $paymentInfo['Member']['last_name']);
+
+        $APICred = $this->APICred[$paymentInfo['Order']['payMode']];
+        $this->mrctCode = $APICred['mrctCode'];
+        $this->scheme_code = $APICred['scheme_code'];
+        $this->key = $APICred['key'];
+        $this->iv = $APICred['iv'];
+        if(in_array($paymentInfo['Order']['payMode'],array('DC'))){
+            $amt = number_format((float) $paymentInfo['Order']['theTotal'], 2, '.', '');
+        }else{
+            $amt = number_format((float) $paymentInfo['Order']['theTotal'] + $paymentInfo['Order']['serviceCharge'], 2, '.', '');
+        }
 
         $transactionRequestBean = new TransactionRequestBean();
         //Setting all values here
@@ -52,7 +65,6 @@ class Ib extends CComponent {
 
         $transactionRequestBean->setCustomerName($fullName);
         $transactionRequestBean->setMerchantTxnRefNumber($paymentInfo['Order']['txn_id']);
-        $amt = number_format((float) $paymentInfo['Order']['theTotal'] + $paymentInfo['Order']['serviceCharge'], 2, '.', '');
         $transactionRequestBean->setAmount($amt);
         $req_detail = "{$this->scheme_code}_{$amt}_0.0";
         $transactionRequestBean->setShoppingCartDetails($req_detail);
