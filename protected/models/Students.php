@@ -14,12 +14,12 @@ class Students extends CActiveRecord
 	public $dobrange;
 	public $admissionrange;
 	public $task_type;
-	
+
 	private $_model;
 	private $_modelReg;
 	private $_rules = array();
 	public $max_adm_no;
-	
+
 
 	/**
 	 * @return string the associated database table name
@@ -36,13 +36,13 @@ class Students extends CActiveRecord
 	{
 		if (!$this->_rules) {
 			$required = array();
-			$numerical = array();	
+			$numerical = array();
 			$decimal = array();
-			$safe	= array();
+			$safe	= array('is_siblings');
 			$rules = array();
-			
+
 			$model=$this->getFields();
-			
+
 			foreach ($model as $field) {
 				$field_rule 	= array();
 				$rule_added		= false;
@@ -61,13 +61,13 @@ class Students extends CActiveRecord
 					array_push($numerical,$field->varname);
 					$rule_added		= true;
 				}
-				
+
 				if($rule_added==false){
 					array_push($safe,$field->varname);
 				}
 			}
 			array_push($rules,array(implode(',',$required), 'required'));
-			array_push($rules,array(implode(',',$numerical), 'numerical', 'integerOnly'=>true));			
+			array_push($rules,array(implode(',',$numerical), 'numerical', 'integerOnly'=>true));
 			array_push($rules,array(implode(',',$decimal), 'match', 'pattern' => '/^\s*[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?\s*$/'));
 			array_push($rules,array(implode(',',$safe), 'safe'));
 			array_push($rules,array('email','email'));
@@ -78,7 +78,7 @@ class Students extends CActiveRecord
 			$this->_rules = $rules;
 		}
 
-		return $this->_rules;                                   
+		return $this->_rules;
 	}
 
 	/**
@@ -91,7 +91,7 @@ class Students extends CActiveRecord
 		return array(
 		);
 	}
-	
+
 	public function defaultScope()
 	{
 	 	if((isset(Yii::app()->controller->module->id) and (Yii::app()->controller->module->id=="onlineadmission")) or (isset(Yii::app()->controller->module->id) and (Yii::app()->controller->module->id=="courses") and Yii::app()->controller->action->id == 'waitinglist') or (isset(Yii::app()->controller->module->id) and (Yii::app()->controller->module->id=="parentportal") and Yii::app()->controller->action->id == 'checkStatus')){
@@ -101,14 +101,14 @@ class Students extends CActiveRecord
 	   			'condition'=> $this->getTableAlias(false, false).".type=:not_online",
 	   			'params' => array(":not_online"=>0)
 	  		);
-	 	} 
+	 	}
 	}
 	public function check($attribute,$params)
     {
 		$guardians= Guardians::model()->findByAttributes(array('email'=>$this->$attribute,'is_delete'=>'0'));
 		$employee= Employees::model()->findByAttributes(array('email'=>$this->$attribute,'is_deleted'=>'0'));
 		$validate = User::model()->findByAttributes(array('email'=>$this->$attribute));
-		
+
 		if($this->$attribute!='')
 		{
 			if(($validate!=NULL and $validate->id!=$this->uid) or $employee!=NULL or $guardians!=NULL)
@@ -117,11 +117,11 @@ class Students extends CActiveRecord
 			}
 		}
     }
-	
+
 	public function checkNationalId($attribute,$params)
     {
 		$model= Students::model()->findByAttributes(array('national_student_id'=>$this->$attribute,'is_deleted'=>'0'));
-		
+
 		if($this->$attribute!='')
 		{
 			if(($model!=NULL and $model->id!=$this->id))
@@ -133,17 +133,17 @@ class Students extends CActiveRecord
 	//check the phone number is unique
 	/*public function check_phone($attribute,$params)
     {
-		
+
 		$student= Students::model()->findByAttributes(array('phone1'=>$this->$attribute));
 		$employee= Employees::model()->findByAttributes(array('mobile_phone'=>$this->$attribute));
 		$parent= Guardians::model()->findByAttributes(array('mobile_phone'=>$this->$attribute));
-		
+
 		if(Yii::app()->controller->action->id!='update' and $this->$attribute!='')
 		{
-			
+
 			if($student!=NULL or $employee!=NULL or $parent!=NULL)
 			{
-			
+
 				$this->addError($attribute,' Mobile Phone already in use');
 			}
 		}
@@ -156,7 +156,7 @@ class Students extends CActiveRecord
 			}
 		}
     }*/
-	//end 
+	//end
 	/**
 	 * @return array customized attribute labels (name=>label)
 	 */
@@ -164,14 +164,15 @@ class Students extends CActiveRecord
 	{
 		$labels = array(
 			'uid' => Yii::t('app','User ID'),
-			'id' => Yii::t("app",'ID')
+			'id' => Yii::t("app",'ID'),
+                        'is_siblings' => 'Brother / Sister Studying in our school (if any)'
 		);
 		$model=$this->getFields();
-		
+
 		foreach ($model as $field)
 			$labels[$field->varname] = Yii::t('app',$field->title);
-			
-		return $labels;		
+
+		return $labels;
 	}
 
 	public function scopes()
@@ -242,16 +243,16 @@ class Students extends CActiveRecord
 	{
 		return '"123"';
 	}
-	
+
 	public function getFullname()
 	{
-	
+
 		return '</td><td style="padding-left:15px;">'.CHtml::link($this->first_name.' '.$this->last_name, array('/students/students/view', 'id'=>$this->id)).'
 								   </td><td style="padding-left:15px;">'.$this->admission_no.'</td>'.
 								 '</tr>';
-									 
+
 	}
-        
+
         public function getFullnames()
 	{
             $name 	= "";
@@ -270,8 +271,8 @@ class Students extends CActiveRecord
                 {
                     $name 	.= (($name!="")?" ":"").ucfirst($this->last_name);
                 }
-                
-                if(FormFields::model()->isVisible("fullname", "Students", "forStudentProfile"))                                            
+
+                if(FormFields::model()->isVisible("fullname", "Students", "forStudentProfile"))
                 {
                     return '</td><td style="padding-left:15px;">'.CHtml::link($name, array('/students/students/view', 'id'=>$this->id)).'
 								   </td><td style="padding-left:15px;">'.$this->admission_no.'</td>'.
@@ -282,11 +283,11 @@ class Students extends CActiveRecord
                     return '</td><td style="padding-left:15px;">'.$this->admission_no.'</td>'.
 								 '</tr>';
                 }
-	
-		
-									 
+
+
+
 	}
-	
+
 	public function getT_fullname()
 	{
             $name= "";
@@ -305,24 +306,24 @@ class Students extends CActiveRecord
             }
 			if(Yii::app()->controller->module->id == 'teachersportal'){
 				if($this->studentFullName('forTeacherPortal')){
-					return '</td><td>'.$name.'</td><td >'.$no.'</td>'.'</tr>';	
+					return '</td><td>'.$name.'</td><td >'.$no.'</td>'.'</tr>';
 				}else{
-					return '</td><td >'.$no.'</td>'.'</tr>';								   								 
+					return '</td><td >'.$no.'</td>'.'</tr>';
 				}
 			}else{
-            	return '</td><td>'.$name.'</td><td >'.$no.'</td>'.'</tr>';								   								 
+            	return '</td><td>'.$name.'</td><td >'.$no.'</td>'.'</tr>';
 			}
-            
+
             //		return '</td><td>'.$this->first_name.' '.$this->last_name.'
             //								   </td><td >'.$this->admission_no.'</td>'.
             //								 '</tr>';
-									 
+
 	}
 	public function getStudentname()
 	{
 		return ucfirst($this->first_name).' '.ucfirst($this->middle_name).' '.ucfirst($this->last_name);
 	}
-	
+
 	public function getStudentnameforstudentprofile()
 	{
 		$name 	= "";
@@ -347,7 +348,7 @@ class Students extends CActiveRecord
 			return '-';
 		}
 	}
-	
+
 	public function getStudentnameforparentportal()
 	{
 		$name 	= "";
@@ -393,16 +394,16 @@ class Students extends CActiveRecord
 
         return $name;
 	}
-        
-        
-	
+
+
+
 //Student Profile Image Path
 	public function getProfileImagePath($id){
 		$model = Students::model()->findByPk($id);
-		$path = 'uploadedfiles/student_profile_image/'.$model->id.'/'.$model->photo_file_name;	
+		$path = 'uploadedfiles/student_profile_image/'.$model->id.'/'.$model->photo_file_name;
 		return $path;
 	}
-//Get the fiedls from form_fields	
+//Get the fiedls from form_fields
 	public function getFields() {
 		$scope 		= NULL;
 		if(Yii::app()->controller->module->id == 'students' or Yii::app()->controller->module->id == 'studentportal' or Yii::app()->controller->module->id == 'admin'){
@@ -416,11 +417,11 @@ class Students extends CActiveRecord
 		if(Yii::app()->controller->id == 'guardians' and Yii::app()->controller->action->id == 'addguardian'){
 			$criteria->condition	= "`tab_selection`=:tab_selection AND `model`=:model";
 			$criteria->params		= array(':tab_selection'=>3, 'model'=>"Students");
-		}		
+		}
 		else{
 			$criteria->condition	= "`tab_selection`=:tab_selection AND `model`=:model";
 			$criteria->params		= array(':tab_selection'=>1, 'model'=>"Students");
-		}		
+		}
 
 		if($scope!=NULL){
 			$this->_modelReg	= FormFields::model()->$scope()->findAll($criteria);
@@ -429,16 +430,16 @@ class Students extends CActiveRecord
 			$this->_modelReg	= FormFields::model()->findAll($criteria);
 		}
 
-		return $this->_modelReg;		
+		return $this->_modelReg;
 	}
-	
+
 //Online Admission Functions
-// Approve process 	
+// Approve process
 	public function approveProcess($id,$batch)
-	{     	 		
+	{
 		$registered_student = Students::model()->findByAttributes(array('id'=>$id));
 		$registered_guardian = Guardians::model()->findByAttributes(array('id'=>$registered_student->parent_id));
-		
+
 		//Manage waiting list
 		$waitinglist = WaitinglistStudents::model()->findByAttributes(array('student_id'=>$id));
 		if($waitinglist!=NULL)
@@ -446,7 +447,7 @@ class Students extends CActiveRecord
 			$criteria = new CDbCriteria;
 			$criteria->condition = 'batch_id=:batch_id AND priority>:priority';
 			$criteria->params[':batch_id'] = $waitinglist->batch_id;
-			$criteria->params[':priority'] = $waitinglist->priority;						
+			$criteria->params[':priority'] = $waitinglist->priority;
 			$DetailsOfStudent = WaitinglistStudents::model()->findAll($criteria);
 			foreach($DetailsOfStudent as $change)
 			{
@@ -454,45 +455,45 @@ class Students extends CActiveRecord
 			}
 			$waitinglist->delete();
 		}
-				
+
 		//Find the largest admssion no
 		//$criteria1 = new CDbCriteria;
-		//$criteria1->select='MAX(admission_no) as max_adm_no';				
+		//$criteria1->select='MAX(admission_no) as max_adm_no';
 		//$adm_no	= Students::model()->find($criteria1);
 		$adm_no = Yii::app()->db->createCommand()
 				  ->select("MAX(CAST(admission_no AS UNSIGNED)) as `max_adm_no`")
-				  ->from('students')				 
+				  ->from('students')
 				  ->queryRow();
-				  
-		$registered_student->admission_no = $adm_no['max_adm_no']+1;				
+
+		$registered_student->admission_no = $adm_no['max_adm_no']+1;
 		$registered_student->admission_date = date('Y-m-d');
 		$registered_student->batch_id = $batch;
 		$registered_student->created_at = date('Y-m-d H:i:s');
 		$registered_student->updated_at = '';
 		$registered_student->type = 0;
 		$registered_student->user_id = Yii::app()->user->id;
-				
+
 		if($registered_student->save())
 		{
-			
+
 			if($registered_student->phone1)
 			{
-				$student_no = $registered_student->phone1;	
+				$student_no = $registered_student->phone1;
 			}
 			elseif($registered_student->phone2)
 			{
 				$student_no = $registered_student->phone2;
 			}
-		//create student user	
+		//create student user
 			$student_uid = Students::model()->createUser($registered_student->id,$registered_student->first_name,$registered_student->last_name,$registered_student->email,$student_no,'student');
 			if($student_uid)
 			{
 				  //saving user id to students table.
-				$registered_student->saveAttributes(array('uid'=>$student_uid));	
-				
-			}			
-			
-			
+				$registered_student->saveAttributes(array('uid'=>$student_uid));
+
+			}
+
+
 			// Saving to batch_student table to get current and previous batches of the student
 			  if($registered_student->batch_id)
 			  {
@@ -507,21 +508,21 @@ class Students extends CActiveRecord
 					  $new_batch->status =1;
 					  $new_batch->save();
 				  }
-			  }			 
+			  }
 		}
-				
+
 		if(isset($registered_guardian) and $registered_guardian->uid == 0)
-		{									
-			$guardian_no = $registered_guardian->mobile_phone;	
+		{
+			$guardian_no = $registered_guardian->mobile_phone;
 			$registered_student->saveAttributes(array('immediate_contact_id'=>$registered_guardian->id));
-			$parent_uid = Students::model()->createUser($registered_guardian->id,$registered_guardian->first_name,$registered_guardian->last_name,$registered_guardian->email,$guardian_no,'parent');			
-			if($parent_uid){				
-				$registered_guardian->saveAttributes(array('uid'=>$parent_uid));	
-			}									
+			$parent_uid = Students::model()->createUser($registered_guardian->id,$registered_guardian->first_name,$registered_guardian->last_name,$registered_guardian->email,$guardian_no,'parent');
+			if($parent_uid){
+				$registered_guardian->saveAttributes(array('uid'=>$parent_uid));
+			}
 		}
 		else
-		{			
-			$registered_student->saveAttributes(array('immediate_contact_id'=>$registered_guardian->id));			
+		{
+			$registered_student->saveAttributes(array('immediate_contact_id'=>$registered_guardian->id));
 			$notification = NotificationSettings::model()->findByAttributes(array('id'=>14));
 			$college=Configurations::model()->findByPk(1);
 			if($notification->mail_enabled=='1' and $notification->parent_1=='1')
@@ -536,14 +537,14 @@ class Students extends CActiveRecord
 				$message = str_replace("{{GUARDIAN}}",ucfirst($existing_guardian->first_name),$message);
 				$message = str_replace("{{APPLICANT}}",ucfirst($new_student->first_name).' '.ucfirst($new_student->last_name),$message);
 				$message = str_replace("{{USERNAME}}", Yii::t("app","Use Existing Username"),$message);
-				$message = str_replace("{{PASSWORD}}", Yii::t("app","Use Existing Password"),$message);				
+				$message = str_replace("{{PASSWORD}}", Yii::t("app","Use Existing Password"),$message);
 				$message = str_replace("{{LINK}}",$url,$message);
 				$mailfunction_success = UserModule::sendMail($existing_guardian->email,$subject,$message);
 			}
 		//Send SMS
 			if($notification->sms_enabled=='1' and $notification->parent_1=='1')
-			{				
-				$from = $college->config_value;				
+			{
+				$from = $college->config_value;
 				$sms_template = SystemTemplates::model()->findByAttributes(array('id'=>27));
 				$sms_message = $sms_template->template;
 				$message = str_replace("<School Name>",$college->config_value,$sms_message);
@@ -551,24 +552,24 @@ class Students extends CActiveRecord
 			}
 		//send message
 			if($notification->parent_1 == '1' and $notification->msg_enabled == '1')
-			{						
+			{
 				$to = $existing_guardian->uid;
 				$subject = Yii::t("app",'Welcome to ').$college->config_value;
 				$message = Yii::t("app",'Hi, Welcome to ').$college->config_value.Yii::t("app",'. We are looking forward to your esteemed presence and cooperation with our organization.');
-				$msg_success = NotificationSettings::model()->sendMessage($to,$subject,$message);		
-			}	
-			
+				$msg_success = NotificationSettings::model()->sendMessage($to,$subject,$message);
+			}
+
 		}
 		$registered_student->saveAttributes(array('status'=>1));
 		Yii::app()->user->setFlash('successMessage', Yii::t("app","Action performed successfully"));
-				
+
 		return;
 	}
-	
-//User creation during approve process	
+
+//User creation during approve process
 	public function createUser($id,$first_name,$last_name,$email,$phone,$role)
 	{
-		
+
 		$user = new User;
 		$profile = new Profile;
 		$user->username = substr(md5(uniqid(mt_rand(), true)), 0, 10);
@@ -578,32 +579,32 @@ class Students extends CActiveRecord
 		$user->password=UserModule::encrypting($password);
 		$user->superuser=0;
 		$user->status=1;
-		
+
 		if($user->save())
 		{
 			//assign role
 			$authorizer = Yii::app()->getModule("rights")->getAuthorizer();
-			$authorizer->authManager->assign($role, $user->id); 
-			
+			$authorizer->authManager->assign($role, $user->id);
+
 			//profile
 			$profile->firstname = $first_name;
 			$profile->lastname = $last_name;
 			$profile->user_id = $user->id;
-			$profile->save();			
-			
+			$profile->save();
+
 			$notification = NotificationSettings::model()->findByAttributes(array('id'=>14));
 			if($notification->mail_enabled == '1' or $notification->sms_enabled == '1' or $notification->msg_enabled == '1')
-			{	
+			{
 				$mail_success = $this->sendApprovalMail($id,$email,$role,$profile->firstname,$user->username,$password,$phone,$user->id);
 			}
 			else
 			{
 				return $user->id;
 			}
-			
-		}			
+
+		}
 			return $user->id;
-			
+
 	}
 //Send approval mail, sms, message to users	during approval process
 	public function sendApprovalMail($id,$to,$role,$first_name,$username,$password,$phone,$uid)
@@ -614,7 +615,7 @@ class Students extends CActiveRecord
 		{
 			$student_email = EmailTemplates::model()->findByPk(22);
 			$subject = $student_email->subject;
-			$message = $student_email->template;			
+			$message = $student_email->template;
 		}
 		elseif($role == 'parent')
 		{
@@ -624,7 +625,7 @@ class Students extends CActiveRecord
 			$student = Students::model()->findByAttributes(array('parent_id'=>$id));
 		}
 		$url = Yii::app()->getBaseUrl(true);
-		
+
 		$subject = str_replace("{{SCHOOL}}",ucfirst($college->config_value),$subject);
 		$message = str_replace("{{SCHOOL}}",ucfirst($college->config_value),$message);
 		if($role == 'student')
@@ -634,81 +635,81 @@ class Students extends CActiveRecord
 		elseif($role == 'parent')
 		{
 			$message = str_replace("{{GUARDIAN}}",ucfirst($first_name),$message);
-			$message = str_replace("{{APPLICANT}}",ucfirst($student->first_name).' '.ucfirst($student->last_name),$message);			
+			$message = str_replace("{{APPLICANT}}",ucfirst($student->first_name).' '.ucfirst($student->last_name),$message);
 		}
-		
+
 		$message = str_replace("{{USERNAME}}",$username.' or '.$to,$message);
 		$message = str_replace("{{PASSWORD}}",$password,$message);
 		$message = str_replace("{{LINK}}",$url,$message);
-		
-	//send mail	
+
+	//send mail
 		if($role == 'student' and $notification->student == '1' and $notification->mail_enabled == '1')
-		{								
+		{
 			$mailfunction_success = UserModule::sendMail($to,$subject,$message);
 		}elseif($role == 'parent' and $notification->parent_1 == '1' and $notification->mail_enabled == '1')
 		{
 			$mailfunction_success = UserModule::sendMail($to,$subject,$message);
-		}		
-	//send sms	
+		}
+	//send sms
 		if($role == 'student' and $notification->student == '1' and $notification->sms_enabled == '1')
-		{											
-			$from = $college->config_value;				
+		{
+			$from = $college->config_value;
 			$sms_template = SystemTemplates::model()->findByAttributes(array('id'=>29));
 			$sms_message = $sms_template->template;
 			$sms_success = SmsSettings::model()->sendSms($phone,$from,$sms_message);
-			
+
 		}elseif($role == 'parent' and $notification->parent_1 == '1' and $notification->sms_enabled == '1')
-		{			
-			$from = $college->config_value;				
+		{
+			$from = $college->config_value;
 			$sms_template = SystemTemplates::model()->findByAttributes(array('id'=>27));
 			$sms_message = $sms_template->template;
 			$message = str_replace("<School Name>",$college->config_value,$sms_message);
-			$sms_success = SmsSettings::model()->sendSms($phone,$from,$message);			
+			$sms_success = SmsSettings::model()->sendSms($phone,$from,$message);
 		}
-	//send message	
+	//send message
 		if($role == 'student' and $notification->student == '1' and $notification->msg_enabled == '1')
-		{														
+		{
 			$to = $uid;
 			$subject = Yii::t("app",'Welcome to ').$college->config_value;
 			$message = Yii::t("app",'Hi, Welcome! Your study at ').$college->config_value.Yii::t("app",' is an important time of discovery, and we\'re here to support you along the way.');
 			$msg_success = NotificationSettings::model()->sendMessage($to,$subject,$message);
-			
+
 		}elseif($role == 'parent' and $notification->parent_1 == '1' and $notification->msg_enabled == '1')
-		{						
+		{
 			$to = $uid;
 			$subject = Yii::t("app",'Welcome to ').$college->config_value;
 			$message = Yii::t("app",'Hi, Welcome to ').$college->config_value.Yii::t("app",'. We are looking forward to your esteemed presence and cooperation with our organization.');
-			$msg_success = NotificationSettings::model()->sendMessage($to,$subject,$message);		
-		}	
-		
+			$msg_success = NotificationSettings::model()->sendMessage($to,$subject,$message);
+		}
+
 		//$headers = "MIME-Version: 1.0\r\nFrom: tanuja1990@gmail.com\r\nReply-To: tanuja1990@gmail.com\r\nContent-Type: text/html; charset=utf-8";
 		//mail('tanuja@wiwoinc.com','subject','message',$headers);
 		if($mailfunction_success or $sms_success or $msg_success)
 		{
-			
+
 			return 1;
 		}
 		else
 		{
-			
+
 			return 0;
 		}
-		
+
 	}
-//Send mail & sms during registration	
+//Send mail & sms during registration
 	public function sendRegistrationMail($id)
-	{								
-		$student = Students::model()->findByAttributes(array('id'=>$id));	
-		$parent = Guardians::model()->findByAttributes(array('id'=>$student->parent_id));	
+	{
+		$student = Students::model()->findByAttributes(array('id'=>$id));
+		$parent = Guardians::model()->findByAttributes(array('id'=>$student->parent_id));
 		$url = Yii::app()->getBaseUrl(true).'/index.php?r=onlineadmission/registration/';
 		$settings = UserSettings::model()->findByAttributes(array('user_id'=>1));
 		if($settings!=NULL)
-		{	
+		{
 			$student->registration_date = date($settings->displaydate,strtotime($student->registration_date));
 		}
 		$college=Configurations::model()->findByPk(1);
 		$notification = NotificationSettings::model()->findByAttributes(array('id'=>13));
-	//Sending mail & sms to student 	
+	//Sending mail & sms to student
 		if($notification->student == '1' and $notification->mail_enabled == '1')
 		{
 			$student_email = EmailTemplates::model()->findByPk(17);
@@ -721,22 +722,22 @@ class Students extends CActiveRecord
 			$message = str_replace("{{ID}}",$student->registration_id,$message);
 			$message = str_replace("{{PIN}}",$student->password,$message);
 			$message = str_replace("{{LINK}}",$url,$message);
-					
-			UserModule::sendMail($student->email,$subject,$message);						
-		}	
+
+			UserModule::sendMail($student->email,$subject,$message);
+		}
 		if($notification->student == '1' and $notification->sms_enabled == '1')
-		{				
+		{
 			$from = $college->config_value;
 			$sms_template = SystemTemplates::model()->findByAttributes(array('id'=>28));
 			$sms_message = $sms_template->template;
 			SmsSettings::model()->sendSms($student->phone1,$from,$sms_message);
-		} 				
+		}
 	//Send mail & sms to Parent
 		if($notification->parent_1 == '1' and $notification->mail_enabled == '1')
-		{			
-			$parent_email = EmailTemplates::model()->findByPk(18);	
+		{
+			$parent_email = EmailTemplates::model()->findByPk(18);
 			$subject = $parent_email->subject;
-			$message = $parent_email->template;								
+			$message = $parent_email->template;
 			$subject = str_replace("{{SCHOOL}}",ucfirst($college->config_value),$subject);
 			$message = str_replace("{{SCHOOL}}",ucfirst($college->config_value),$message);
 			$message = str_replace("{{APPLICANT}}",ucfirst($student->first_name),$message);
@@ -744,19 +745,19 @@ class Students extends CActiveRecord
 			$message = str_replace("{{ID}}",$student->registration_id,$message);
 			$message = str_replace("{{PIN}}",$student->password,$message);
 			$message = str_replace("{{LINK}}",$url,$message);
-			
+
 			UserModule::sendMail($parent->email,$subject,$message);
 		}
-	//Send SMS	
+	//Send SMS
 		if($notification->parent_1 == '1' and $notification->sms_enabled == '1')
-		{				
+		{
 			$from = $college->config_value;
 			$sms_template = SystemTemplates::model()->findByAttributes(array('id'=>26));
 			$sms_message = str_replace("<Student Name>",ucfirst($student->first_name).' '.ucfirst($student->last_name),$sms_template->template);
 			$sms_message = str_replace("<School Name>",$college->config_value,$sms_message);
 			SmsSettings::model()->sendSms($parent->mobile_phone,$from,$sms_message);
-		}		
+		}
 		return 1;
-		
-	}		
+
+	}
 }
