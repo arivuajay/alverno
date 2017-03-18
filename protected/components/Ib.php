@@ -59,7 +59,7 @@ class Ib extends CComponent {
         
         $transactionRequestBean->setMerchantCode($this->mrctCode);
         $transactionRequestBean->setAccountNo('');
-        $transactionRequestBean->setITC('NIC~TXN0001~122333~rt14154~8 mar 2014~Payment~forpayment');
+        $transactionRequestBean->setITC('');
         $transactionRequestBean->setMobileNumber('');
         $transactionRequestBean->setCustomerName($customerName);
         $transactionRequestBean->setRequestType($this->requestType);
