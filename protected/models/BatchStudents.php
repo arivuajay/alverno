@@ -53,6 +53,8 @@ class BatchStudents extends CActiveRecord
 		// NOTE: you may need to adjust the relation name and the related
 		// class name for the relations automatically generated below.
 		return array(
+                    'batch' => array(self::BELONGS_TO, 'Batches', 'batch_id'),
+                    'student' => array(self::BELONGS_TO, 'Students', 'student_id'),
 		);
 	}
 
@@ -93,6 +95,6 @@ class BatchStudents extends CActiveRecord
 			'criteria'=>$criteria,
 		));
 	}
-	
-	
+
+
 }

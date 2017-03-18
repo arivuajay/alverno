@@ -15,7 +15,7 @@ Yii::t('app','Courses'),
         </td>
         <td valign="top">
             <div class="cont_right formWrapper">
-           
+
                 <!--<div class="searchbx_area">
                 <div class="searchbx_cntnt">
                 <ul>
@@ -25,11 +25,11 @@ Yii::t('app','Courses'),
                 </div>
                 </div>-->
                 <h1 style="margin-top:.67em;">
-					<?php 
+					<?php
 						echo Yii::t('app','Student Profile :').' ';
 						if(FormFields::model()->isVisible("fullname", "Students", 'forStudentProfile')){
 							echo $model->studentFullName('forStudentProfile');
-						} 
+						}
 					?><br />
 				</h1>
                 <div class="edit_bttns last">
@@ -43,10 +43,10 @@ Yii::t('app','Courses'),
                     </ul>
                 </div> <!-- END div class="edit_bttns last" -->
                 <div class="clear"></div>
-                
+
                 <div class="emp_right_contner">
                  	<?php
-					// Display Success Flash Messages 
+					// Display Success Flash Messages
 					Yii::app()->clientScript->registerScript(
 					   'myHideEffect',
 					   '$(".flashMessage").animate({opacity: 1.0}, 3000).fadeOut("slow");',
@@ -54,7 +54,7 @@ Yii::t('app','Courses'),
 					);
 					?>
 					<?php
-					if(Yii::app()->user->hasFlash('successMessage')): 
+					if(Yii::app()->user->hasFlash('successMessage')):
 					?>
 					<div class="flashMessage" style="background:#FFF; color:#C00; padding-left:200px; top:150px;">
 						<?php echo Yii::app()->user->getFlash('successMessage'); ?>
@@ -63,14 +63,14 @@ Yii::t('app','Courses'),
 					endif;
 					// END Display Success Flash Messages
 					?>
-                    
+
                     <?php
 					// Display Error Flash Messages
 					if(Yii::app()->controller->action->id=='document')
 					{
 					?>
 						<?php
-						if(Yii::app()->user->hasFlash('errorMessage')): 
+						if(Yii::app()->user->hasFlash('errorMessage')):
 						?>
 						<div class="flashMessage" style="background:#FFF; color:#C00; padding-left:200px; top:150px;">
 							<?php echo Yii::app()->user->getFlash('errorMessage'); ?>
@@ -80,8 +80,8 @@ Yii::t('app','Courses'),
 						// END Display Error Flash Messages
 					}
                     ?>
-                    
-                    
+
+
                     <div class="emp_tabwrapper">
 						<?php $this->renderPartial('tab');?>
                         <div class="clear"></div>
@@ -100,7 +100,7 @@ Yii::t('app','Courses'),
                                     </tr>
                                     <?php
                                         $batches = BatchStudents::model()->findAllByAttributes(array('student_id'=>$model->id),array('order'=>'id DESC'));
-                                        
+
                                         $sl_no = 1;
                                         foreach($batches as $batch)
                                         {
@@ -118,7 +118,7 @@ Yii::t('app','Courses'),
                                             <?php
 												if(FormFields::model()->isVisible('batch_id','Students','forStudentProfile')){?>
                                             <td>
-                                            <?php	
+                                            <?php
                                             	$batch_name = Batches::model()->findByAttributes(array('id'=>$batch->batch_id,'is_active'=>1));
 						if($batch_name->name!="")
                                                 {
@@ -143,7 +143,7 @@ Yii::t('app','Courses'),
                                               <td>
                                             	<?php
 												if($batch_date->start_date > date("Y-m-d h:i:sa")){
-													
+
                            echo Yii::t('app','Starts on :').' <span style="color:#0000FF">'.date("d-M-Y",strtotime($batch_date->start_date));?></span><?php
 												}
 												else{
@@ -153,27 +153,27 @@ Yii::t('app','Courses'),
 													if($batch->result_status == -1)
 														$status_print = '<span style="color:#FF0000">'.Yii::t('app',$status->option_name).'</span>';
 													if($batch->result_status == 0)
-														$status_print = '<span style="color:#006633">'.Yii::t('app',$status->option_name).'</span>';	
+														$status_print = '<span style="color:#006633">'.Yii::t('app',$status->option_name).'</span>';
 													if($batch->result_status == 2)
 														$status_print = '<span style="color:#0000FF">'.Yii::t('app',$status->option_name).'</span>';
 													if($batch->result_status == 3)
-														$status_print = '<span style="color:#0000FF">'.Yii::t('app','Previous').'</span>';		
+														$status_print = '<span style="color:#0000FF">'.Yii::t('app','Previous').'</span>';
 													echo $status_print;
 												}
 												?>
                                             </td>
                                             <td>
-                                                <?php                                            
-                                                $student_model= Students::model()->findByPk($_REQUEST['id']);                                               
+                                                <?php
+                                                $student_model= Students::model()->findByPk($_REQUEST['id']);
                                                 if($student_model->batch_id!= $batch->batch_id)
                                                 {
                                                     echo CHtml::ajaxLink(Yii::t('app','Manage'), Yii::app()->createUrl('students/students/liststatus' ), array('type' =>'GET', 'data' =>array( 'id' => $batch->id),'dataType' => 'text',  'update' =>'#course_status'.$batch->id, 'onclick'=>'$("#course_status_dialog'.$batch->id.'").dialog("open"); return false;',),array('class'=>'course_status'))." | ";
-                                                   
+
                                                     echo CHtml::link(Yii::t('app',"Delete"),array('students/batchdelete','id'=>$batch->id,'sid'=>$_REQUEST['id']),array('confirm'=>Yii::t('app','Are You Sure?')));
                                                 }
                                                 else
                                                     echo Yii::t('app',"Current").' '.Yii::app()->getModule('students')->fieldLabel("Students", "batch_id");
-                                                
+
                                              ?></td>
                                         </tr>
                                         <div  id="course_status<?php echo $batch->id; ?>"></div>
@@ -184,12 +184,12 @@ Yii::t('app','Courses'),
                                 </table>
                             </div>
                        	</div> <!-- END div class="emp_cntntbx" -->
-                        	
+
                     </div> <!-- END div class="emp_tabwrapper" -->
                 </div> <!-- END div class="emp_right_contner" -->
-                
+
             </div> <!-- END div class="cont_right formWrapper" -->
-          
+
         </td>
     </tr>
 </table>

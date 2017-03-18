@@ -37,14 +37,13 @@ class Ib extends CComponent {
     }
 
     public function addRequestParam($paymentInfo = array()) {
-        $fullName = trim($paymentInfo['Member']['first_name'] . " " . $paymentInfo['Member']['last_name']);
-
-        $APICred = $this->APICred[$paymentInfo['Order']['payMode']];
+        $APICred = $this->APICred[Yii::app()->session['pay_mode']];
         $this->mrctCode = $APICred['mrctCode'];
         $this->scheme_code = $APICred['scheme_code'];
         $this->key = $APICred['key'];
         $this->iv = $APICred['iv'];
-        if(in_array($paymentInfo['Order']['payMode'],array('DC'))){
+        
+        if(in_array(Yii::app()->session['pay_mode'],array('DC'))){
             $amt = number_format((float) $paymentInfo['Order']['theTotal'], 2, '.', '');
         }else{
             $amt = number_format((float) $paymentInfo['Order']['theTotal'] + $paymentInfo['Order']['serviceCharge'], 2, '.', '');
@@ -52,26 +51,42 @@ class Ib extends CComponent {
 
         $transactionRequestBean = new TransactionRequestBean();
         //Setting all values here
+        $txnNo = $paymentInfo['Order']['txn_id'];
+        $req_detail = "{$this->scheme_code}_{$amt}_0.0";
+        $customerId = $paymentInfo['Order']['CustomerId'];
+        $customerName = $paymentInfo['Order']['CustomerName'];
+        $tpsl_txn_id = 'TXN00'.rand(1,10000);
+        
         $transactionRequestBean->setMerchantCode($this->mrctCode);
+        $transactionRequestBean->setAccountNo('');
+        $transactionRequestBean->setITC('NIC~TXN0001~122333~rt14154~8 mar 2014~Payment~forpayment');
+        $transactionRequestBean->setMobileNumber('');
+        $transactionRequestBean->setCustomerName($customerName);
         $transactionRequestBean->setRequestType($this->requestType);
+        $transactionRequestBean->setMerchantTxnRefNumber($txnNo);
+        $transactionRequestBean->setAmount($amt);
         $transactionRequestBean->setCurrencyCode($this->currencyType);
+        $transactionRequestBean->setReturnURL(Yii::app()->createAbsoluteUrl($this->returnURL));
+        $transactionRequestBean->setS2SReturnURL($this->s2SReturnURL);
+        $transactionRequestBean->setShoppingCartDetails($req_detail);
+        $transactionRequestBean->setTxnDate(date('d-m-Y'));
         $transactionRequestBean->setBankCode($this->bankCode);
+        $transactionRequestBean->setTPSLTxnID($tpsl_txn_id);
+        $transactionRequestBean->setCustId($customerId);
+        $transactionRequestBean->setCardId('');
         $transactionRequestBean->setKey($this->key);
         $transactionRequestBean->setIv($this->iv);
         $transactionRequestBean->setWebServiceLocator($this->locatorURL);
+        $transactionRequestBean->setMMID('');
+        $transactionRequestBean->setOTP('');
+        $transactionRequestBean->setCardName('');
+        $transactionRequestBean->setCardNo('');
+        $transactionRequestBean->setCardCVV('');
+        $transactionRequestBean->setCardExpMM('');
+        $transactionRequestBean->setCardExpYY('');
         $transactionRequestBean->setTimeOut($this->timeOut);
-        $transactionRequestBean->setS2SReturnURL($this->s2SReturnURL);
-        $transactionRequestBean->setReturnURL(Yii::app()->createAbsoluteUrl($this->returnURL));
-
-        $transactionRequestBean->setCustomerName($fullName);
-        $transactionRequestBean->setMerchantTxnRefNumber($paymentInfo['Order']['txn_id']);
-        $transactionRequestBean->setAmount($amt);
-        $req_detail = "{$this->scheme_code}_{$amt}_0.0";
-        $transactionRequestBean->setShoppingCartDetails($req_detail);
-        $transactionRequestBean->setTxnDate(date('Y-m-d', strtotime($paymentInfo['Order']['date'])));
-        $transactionRequestBean->setTPSLTxnID('TXN00' . rand(1, 10000));
-
-        $url = $transactionRequestBean->getTransactionToken();
+    
+        $requestParams = print_r($transactionRequestBean, true);
 
         $responseDetails = $transactionRequestBean->getTransactionToken();
         $responseDetails = (array) $responseDetails;
@@ -84,19 +99,23 @@ class Ib extends CComponent {
 
             $transactionResponseBean = new TransactionResponseBean();
             $transactionResponseBean->setResponsePayload($str);
-            $transactionResponseBean->setKey($val['key']);
-            $transactionResponseBean->setIv($val['iv']);
+            $transactionResponseBean->setKey($this->key);
+            $transactionResponseBean->setIv($this->iv);
 
             $response = $transactionResponseBean->getResponsePayload();
-            return array(false, implode(', ', $response));
+            return array(false, implode(', ', $response), $requestParams);
         } elseif (is_string($response) && preg_match('/^txn_status=/', $response)) {
-            return array(false, implode(', ', $response));
+            return array(false, implode(', ', $response), $requestParams);
         }
 
-        return array(true, $response);
+        return array(true, $response, $requestParams);
     }
 
     public function getResponseDetail($response = array()) {
+        $APICred = $this->APICred[Yii::app()->session['pay_mode']];
+        $this->key = $APICred['key'];
+        $this->iv = $APICred['iv'];
+        
         if (is_array($response)) {
             $str = $response['msg'];
         } else if (is_string($response) && strstr($response, 'msg=')) {
@@ -122,7 +141,7 @@ class Ib extends CComponent {
             $output[$key] = $value;
         }
 
-        return $output;
+        return array($output, $response);
     }
 
 }

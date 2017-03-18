@@ -52,6 +52,8 @@ class GuardianList extends CActiveRecord
 		// NOTE: you may need to adjust the relation name and the related
 		// class name for the relations automatically generated below.
 		return array(
+                    'guardian' => array(self::BELONGS_TO, 'Guardians', 'guardian_id'),
+                    'batchStudents' => array(self::MANY_MANY, 'BatchStudents', 'student_id'),
 		);
 	}
 
@@ -86,7 +88,7 @@ class GuardianList extends CActiveRecord
 			'criteria'=>$criteria,
 		));
 	}
-        
+
         function parentname($data,$row)
 	{
 		$id= $data->guardian_id;

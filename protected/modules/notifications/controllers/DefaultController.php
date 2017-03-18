@@ -11,17 +11,17 @@ class DefaultController extends RController
 			'rights', // perform access control for CRUD operations
 		);
 	}
-	
+
 	public function actionIndex()
 	{
 		$this->render('index');
 	}
-	
+
 	public function actionSendmail()
 	{
 		$this->render('sendmail');
 	}
-        
+
         public function actionSendmails()
 	{
             //registering js files
@@ -30,9 +30,9 @@ class DefaultController extends RController
 					Yii::getPathOfAlias('application.modules.notifications.assets') . '/js/ajaxupload/ajaxupload.js'
 				)
 			);
-		
+
 			Yii::app()->clientScript->registerScript('browseActionPath', 'var browseActionPath="' . $this->createUrl('/notifications/default/browsedata') . '"', CClientScript::POS_BEGIN);
-		
+
 			Yii::app()->clientScript->registerScriptFile(
 				Yii::app()->assetManager->publish(
 					Yii::getPathOfAlias('application.modules.notifications.assets') . '/js/ajaxupload/download.js'
@@ -40,20 +40,20 @@ class DefaultController extends RController
 			);
 		$this->render('new_compose/send_mails');
 	}
-        
-	
+
+
 	public function actionMailshots()
 	{
 		$criteria = new CDbCriteria;
 	    $criteria->condition = 'is_mailshot=:x';
-		$criteria->params = array(':x'=>1); 
+		$criteria->params = array(':x'=>1);
 		$criteria->order = ('id DESC');
 		$total = EmailDrafts::model()->count($criteria);
 		$pages = new CPagination($total);
         $pages->setPageSize(15);
         $pages->applyLimit($criteria);  // the trick is here!
 		$posts = EmailDrafts::model()->findAll($criteria);
-		
+
 		$this->render('mailshots',array(
 		'model'=>$posts,
 		'pages' => $pages,
@@ -64,7 +64,7 @@ class DefaultController extends RController
 	{
 		$this->render('viewsent');
 	}
-	
+
 	public function actionSavedraft()
 	{
 		$batch[] = $_POST['batch'];
@@ -72,7 +72,7 @@ class DefaultController extends RController
 		if($_REQUEST['id']){
 		$draft = EmailDrafts::model()->findByAttributes(array('id'=>$_REQUEST['id']));
 		}
-		else{ 
+		else{
 		$draft = new EmailDrafts;
 		}
 		if($_POST['EmailDrafts']['subject']){
@@ -82,48 +82,48 @@ class DefaultController extends RController
 			$draft->subject = "(no subject)";
 		}
 		$draft->message = $_POST['editor1'];
-		 
-		
+
+
 		/*if($_POST['user']=='' || $_POST['editor1']=='')
 		{
-			
+
 			 if( $_POST['user']=='')
 		    {
-			  
+
 			  Yii::app()->user->setFlash('usererrorMessage',UserModule::t("Recipient Field cannot be Empty!"));
-		    } 
+		    }
 		   if(ltrim($_POST['editor1'])=='')
 		     {
 			      Yii::app()->user->setFlash('editerrorMessage',UserModule::t("Message Field cannot be Empty!"));
-			
+
 		     }
 			   $this->redirect(array('sendmail'));
 		}
 		else
 		{*/
 		$draft->created_by = Yii::app()->user->id;
-		$settings=UserSettings::model()->findByAttributes(array('user_id'=>1));									
+		$settings=UserSettings::model()->findByAttributes(array('user_id'=>1));
 		if($settings!=NULL)
-		{	
+		{
 			$timezone = Timezone::model()->findByAttributes(array('id'=>$settings->timezone));
 			date_default_timezone_set($timezone->timezone);
 		}
 		$draft->created_on = date('Y-m-d H:i:s');
 		if(isset($_POST['mailshot']))
-		$draft->is_mailshot = 1;		
+		$draft->is_mailshot = 1;
 		if($draft->save()){
-			
+
 				if($_REQUEST['id']){
-					
+
 					$recipients = EmailRecipients::model()->findByAttributes(array('mail_id'=>$_REQUEST['id']));
 				}
-				else{ 
+				else{
 					$recipients = new EmailRecipients;
 					$recipients->mail_id = $draft->id;
 				}
 			if(isset($user))
 			{
-				
+
 				if(count($user)==4)
 				{
 					$recipients->users = 0;
@@ -134,11 +134,11 @@ class DefaultController extends RController
 						$users1 = implode (',',$users);
 					}
 					$recipients->users = $users1;
-				} 
+				}
 					$recipients->save();
 			}
 			if(isset($batch)){
-				
+
 				if(in_array("0",$batch)){
 					$recipients->users = '0';
 				}
@@ -147,83 +147,83 @@ class DefaultController extends RController
 						$batches1 = implode (',',$batches);
 					}
 					$recipients->batches = $batches1;
-				} 
+				}
 				$recipients->save();
 			}
-			if(CUploadedFile::getInstancesByName('Attachment')){				
-					
+			if(CUploadedFile::getInstancesByName('Attachment')){
+
 					$attachments = CUploadedFile::getInstancesByName('Attachment');
 					if (isset($attachments) && count($attachments) > 0) {
 						 $path	=	'uploads/attachments/'.$draft->id.'/';
 							if(!is_dir($path)){
-								mkdir($path);	
-							}					
+								mkdir($path);
+							}
 						  foreach ($attachments as $attachment => $pic) {
 							   if ($pic->saveAs($path.$pic->name)) {
 									 $img_add = new EmailAttachments;
-                       				 $img_add->file = $pic->name; 
-                        			 $img_add->mail_id = $draft->id; 
+                       				 $img_add->file = $pic->name;
+                        			 $img_add->mail_id = $draft->id;
                             		 $img_add->created_by	=	Yii::app()->user->id;
-									 $img_add->file_type = $pic->type;	
-									 $img_add->save(); 
+									 $img_add->file_type = $pic->type;
+									 $img_add->save();
                   		  		 }
 								 else{
                         				echo Yii::t('app', 'Cannot upload!');
                     			 }
 						  }
 					}
-				
+
 			}
 			}
 			if(isset($_POST['mailshot']))
 				$this->redirect(array('mailshots'));
 			else
 				$this->redirect(array('drafts'));
-				
-				
-				
+
+
+
 	//}
-				
+
 	}
-	
+
 	public function actionDelete() {
 		$file = 'uploads/attachments/'.$_REQUEST['mail_id'].'/'.$_REQUEST['name'];
 		$criteria = new CDbCriteria;
 		$criteria->condition = 'file=:x AND mail_id=:y';
-		$criteria->params = array(':x'=>$_REQUEST['name'],':y'=>$_REQUEST['mail_id']); 
+		$criteria->params = array(':x'=>$_REQUEST['name'],':y'=>$_REQUEST['mail_id']);
 		if(unlink($file)) {
 			$files = EmailAttachments::model()->find($criteria);
 			$files->delete();
 		   }
-	}	
-	
+	}
+
 	public function actionDrafts()
 	{
 		//$model = new EmailDrafts;
 		$criteria = new CDbCriteria;
 	    $criteria->condition = 'is_mailshot=:x AND status=:y';
-		$criteria->params = array(':x'=>0,':y'=>0); 
+		$criteria->params = array(':x'=>0,':y'=>0);
 		$criteria->order = ('id DESC');
 		$total = EmailDrafts::model()->count($criteria);
 		$pages = new CPagination($total);
         $pages->setPageSize(15);
         $pages->applyLimit($criteria);  // the trick is here!
 		$posts = EmailDrafts::model()->findAll($criteria);
-		
+
 		$this->render('drafts',array(
 		'model'=>$posts,
 		'pages' => $pages,
 		'item_count'=>$total,
 		)) ;
-		
+
 		//$this->render('drafts');
 	}
-	
+
 	public function actionDownload()
 	{
 		$criteria = new CDbCriteria;
 	    $criteria->condition = 'mail_id=:x AND id=:y';
-		$criteria->params = array(':x'=>$_REQUEST['mail_id'],':y'=>$_REQUEST['id']); 
+		$criteria->params = array(':x'=>$_REQUEST['mail_id'],':y'=>$_REQUEST['id']);
 		$model = EmailAttachments::model()->find($criteria);
 		$file_path = 'uploads/attachments/'.$model->mail_id.'/'.$model->file;
 		$file_content = file_get_contents($file_path);
@@ -235,73 +235,73 @@ class DefaultController extends RController
 		exit;
 
 	}
-	
+
 	public function actionSentmail()
 	{
 		$criteria = new CDbCriteria;
 	    $criteria->condition = 'status=:y';
-		$criteria->params = array(':y'=>2); 
+		$criteria->params = array(':y'=>2);
 		$criteria->order = ('id DESC');
 		$total = EmailDrafts::model()->count($criteria);
 		$pages = new CPagination($total);
         $pages->setPageSize(15);
         $pages->applyLimit($criteria);  // the trick is here!
 		$posts = EmailDrafts::model()->findAll($criteria);
-		
+
 		$this->render('sentmail',array(
 		'model'=>$posts,
 		'pages' => $pages,
 		'item_count'=>$total,
 		)) ;
 	}
-	
+
 	public function actionSenddraft()
 	{
 		$this->render('new_compose/senddraft');
 	}
-	
+
 	public function actionTest()
 	{
 		require_once(dirname(__FILE__) .'/../../../extensions/PHPMailer/class.phpmailer.php');
 		$email = $_POST['test'];
 		if(isset($email)){
-			
+
 			$draft = new EmailDrafts;
-			
+
 				if($_POST['EmailDrafts']['subject']){
 					$draft->subject = $_POST['EmailDrafts']['subject'];
 				}
 				else{
 					$draft->subject = "(".Yii::t('app', "no subject").")";
 				}
-				
+
 			$draft->message = trim($_POST['editor1']);
 			$draft->created_by = Yii::app()->user->id;
-			$settings=UserSettings::model()->findByAttributes(array('user_id'=>1));	
-			
+			$settings=UserSettings::model()->findByAttributes(array('user_id'=>1));
+
 				if($settings!=NULL)
-				{	
+				{
 				$timezone = Timezone::model()->findByAttributes(array('id'=>$settings->timezone));
 				date_default_timezone_set($timezone->timezone);
 				}
-				
+
 			$draft->created_on = date('Y-m-d H:i:s');
-			$draft->status = 3;	
+			$draft->status = 3;
 			if($draft->save()){
 				if(CUploadedFile::getInstancesByName('Attachment')){
 						$attachments = CUploadedFile::getInstancesByName('Attachment');
 							if (isset($attachments) && count($attachments) > 0) {
 								$path	=	'uploads/attachments/'.$draft->id.'/';
 									if(!is_dir($path)){
-									mkdir($path);	
-									}	
+									mkdir($path);
+									}
 									  foreach ($attachments as $attachment => $pic) {
 										   if ($pic->saveAs($path.$pic->name)) {
 													 $img_add = new EmailAttachments;
 													 $img_add->file = $pic->name; //it might be $img_add->name for you, filename is just what I chose to call it in my model
 													 $img_add->mail_id = $draft->id; // this links your picture model to the main model (like your user, or profile model)
 													 $img_add->created_by	= Yii::app()->user->id;
-													 $img_add->file_type = $pic->type;	
+													 $img_add->file_type = $pic->type;
 													 $img_add->save(); // DONE
 										   }
 										  else{
@@ -309,14 +309,14 @@ class DefaultController extends RController
 										  }
 									}
 						}
-				
-				}	
-			}	
+
+				}
+			}
 		$criteria = new CDbCriteria;
 		$criteria->compare('mail_id',$draft->id);
 		$attachmnts = EmailAttachments::model()->findAll($criteria);
 		foreach($attachmnts as $attachmnt){
-			$path1 =  'uploads/attachments/'.$attachmnt->mail_id.'/'.$attachmnt->file;	
+			$path1 =  'uploads/attachments/'.$attachmnt->mail_id.'/'.$attachmnt->file;
 		}
 		$mail = new PHPMailer();
 		$mail->AddReplyTo("admin@test.com");
@@ -325,7 +325,7 @@ class DefaultController extends RController
 		$mail->Subject = $_POST['EmailDrafts']['subject'];
 		$mail->MsgHTML($_POST['editor1']);
 		$mail->AddAttachment($path1);
-	
+
 			if($mail->Send())
 			{
 				Yii::app()->user->setFlash('testsuccess', Yii::t('app', "Message sent !"));
@@ -335,19 +335,19 @@ class DefaultController extends RController
 				$message = EmailDrafts::model()->find($criteria);
 				$message->delete();
 				foreach($attachmnts as $attachmnt){
-				$target = 'uploads/attachments/'.$attachmnt->mail_id.'/'.$attachmnt->file;	
+				$target = 'uploads/attachments/'.$attachmnt->mail_id.'/'.$attachmnt->file;
 					if(is_dir($target)){
 						$files = glob( $target . '*', GLOB_MARK ); //GLOB_MARK adds a slash to directories returned
-						
+
 						foreach( $files as $file )
 						{
-							delete_files( $file );      
+							delete_files( $file );
 						}
-					  
+
 						rmdir( $target );
-					} 
+					}
 					elseif(is_file($target)) {
-						unlink( $target );  
+						unlink( $target );
 					}
 				$attachmnts->delete();
 				}
@@ -357,7 +357,7 @@ class DefaultController extends RController
 			}
 		}
 }
-	
+
 	public function actionNewmail()
 	{
 		$batch[] = $_POST['batch'];
@@ -368,7 +368,7 @@ class DefaultController extends RController
 		if($_REQUEST['id']){
 		$draft = EmailDrafts::model()->findByAttributes(array('id'=>$_REQUEST['id']));
 		}
-		else{ 
+		else{
 		$draft = new EmailDrafts;
 		}
 		if($_POST['EmailDrafts']['subject']){
@@ -380,9 +380,9 @@ class DefaultController extends RController
 		$draft->message = trim($_POST['editor1']);
 		$draft->created_by = Yii::app()->user->id;
 		$draft->status=2;
-		$settings=UserSettings::model()->findByAttributes(array('user_id'=>1));									
+		$settings=UserSettings::model()->findByAttributes(array('user_id'=>1));
 			if($settings!=NULL)
-			{	
+			{
 			$timezone = Timezone::model()->findByAttributes(array('id'=>$settings->timezone));
 			date_default_timezone_set($timezone->timezone);
 			}
@@ -390,28 +390,28 @@ class DefaultController extends RController
 		if($_POST['user']=='' || ltrim($_POST['editor1'])==''){
 			if( $_POST['user']==''){
 				Yii::app()->user->setFlash('usererrorMessage',Yii::t('app', "Please select a recipient group!"));
-		    } 
+		    }
 			if(ltrim($_POST['editor1'])==''){
 			    Yii::app()->user->setFlash('editerrorMessage',Yii::t('app', "Message Field cannot be Empty!"));
-			
+
 			}
 			if($_POST['batch']==NULL){
                             Yii::app()->user->setFlash('batchselect',Yii::t('app', "Please select a").' '.Yii::app()->getModule('students')->fieldLabel("Students", "batch_id").' '.'!');
 				//Yii::app()->user->setFlash('batchselect',Yii::t('app', "Please select a batch!"));
-			}				
-			
+			}
+
 		   $this->redirect(array('sendmail'));
 		}
 		else
 		{
-		
+
 		if(isset($_POST['mailshot']))
 		$draft->is_mailshot = 1;
 		if($draft->save()){
 			if($_REQUEST['id']){
 					$recipients = EmailRecipients::model()->findByAttributes(array('mail_id'=>$_REQUEST['id']));
 				}
-				else{ 
+				else{
 					$recipients = new EmailRecipients;
 					$recipients->mail_id = $draft->id;
 				}
@@ -419,13 +419,13 @@ class DefaultController extends RController
 				if(in_array("0",$batch)){
 					$recipients->users = '0';
 				}
-				else{					
+				else{
 					foreach($user as $users){
 						$users1 = implode (',',$users);
 					}
 					$recipients->users = $users1;
-				} 
-					$recipients->save();	
+				}
+					$recipients->save();
 			}
 			if(isset($batch)){
 				if(in_array("0",$batch)){
@@ -436,25 +436,25 @@ class DefaultController extends RController
 						$batches1 = implode (',',$batches);
 					}
 					$recipients->batches = $batches1;
-				} 
+				}
 				$recipients->save();
 			}
-					
+
 			if(CUploadedFile::getInstancesByName('Attachment')){
-				
+
 					$attachments = CUploadedFile::getInstancesByName('Attachment');
 					if (isset($attachments) && count($attachments) > 0) {
 						 $path	=	'uploads/attachments/'.$draft->id.'/';
 							if(!is_dir($path)){
-								mkdir($path);	
-							}					
+								mkdir($path);
+							}
 						  foreach ($attachments as $attachment => $pic) {
 							   if ($pic->saveAs($path.$pic->name)) {
 									 $img_add = new EmailAttachments;
                        				 $img_add->file = $pic->name; //it might be $img_add->name for you, filename is just what I chose to call it in my model
                         			 $img_add->mail_id = $draft->id; // this links your picture model to the main model (like your user, or profile model)
                             		 $img_add->created_by	=	Yii::app()->user->id;
-									 $img_add->file_type = $pic->type;	
+									 $img_add->file_type = $pic->type;
 									 $img_add->save(); // DONE
                   		  		 }
 								 else{
@@ -462,38 +462,38 @@ class DefaultController extends RController
                     			 }
 						  }
 					}
-				
+
 			}
 		}
 		if(in_array(1,$_POST['user']) && $_POST['batch']==NULL)
-		{			
+		{
 					$employees = Employees::model()->findAll('is_deleted=:x',array(':x'=>0));
 					foreach($employees as $employee){
-						$emails[] = $employee->email;	
+						$emails[] = $employee->email;
 					}
-			
+
 		}
 		if((in_array(1,$_POST['user']) || in_array(0,$_POST['user'])) && $_POST['batch']!=NULL)
-		{			
+		{
 			foreach($batch as $batches){
 					$criteria = new CDbCriteria;
 					$criteria->compare('batch_id',$batches);
 					$teachers = TimetableEntries::model()->findAll($criteria);
-			
+
 				foreach($teachers as  $teacher){
 						$criteria = new CDbCriteria;
 						$criteria->compare('id',$teacher->employee_id);
 						$personal = Employees::model()->findAll($criteria);
-			
+
 					foreach($personal as $personals){
 							$teach[] = $personals->email;
 								}
 					}
 			}
-					$emails[] = array_unique($teach);	
-			
+					$emails[] = array_unique($teach);
+
 		}
-		
+
 		if(in_array(2,$_POST['user']) || in_array(0,$_POST['user']))
 		{
 			foreach($batch as $batches){
@@ -503,20 +503,20 @@ class DefaultController extends RController
 				$students1 = Students::model()->findAll($criteria);
 				foreach($students1 as $student)
 				{
-					$criteria = new CDbCriteria;					
+					$criteria = new CDbCriteria;
 					$criteria->addInCondition("id", array($student->parent_id));
 					$parents = Guardians::model()->findAll($criteria);
 					foreach($parents as $parent){
 						$emails[] = $parent->email;
 					}
 
-					
-				}
-				
-					
-			}		
 
-		} 
+				}
+
+
+			}
+
+		}
 		if(in_array(3,$_POST['user']) || in_array(0,$_POST['user']))
 		{
 			foreach($batch as $batches){
@@ -527,7 +527,7 @@ class DefaultController extends RController
 			}
 				foreach($students as $student){
 					$emails[] = $student->email;
-				}			
+				}
 		}
 		//$admin = Users::model()->findByAttributes(array('id'=>1));
 		$mails = array_unique($emails);
@@ -542,14 +542,14 @@ class DefaultController extends RController
 			$mail->MsgHTML($_POST['editor1']);
 			$mail->Subject = $_POST['EmailDrafts']['subject'];
 			foreach($attachmnts as $attachmnt){
-			$path =  'uploads/attachments/'.$attachmnt->mail_id.'/'.$attachmnt->file;	
+			$path =  'uploads/attachments/'.$attachmnt->mail_id.'/'.$attachmnt->file;
 			$mail->AddAttachment($path);
 			}
 			$mail->Send();
 		}
-		
-		
-		$this->redirect(array('sendmail'));		
+
+
+		$this->redirect(array('sendmail'));
 	}
 
 }
@@ -560,8 +560,8 @@ public function actionDeletealldrafts()
 		{
 			$delete1->delete();
 		}
-		
-		
+
+
 		$this->redirect(array('default/drafts'));
 }
 public function actionDeletedraft($id)
@@ -580,8 +580,8 @@ public function actionDeleteallmailshot()
 		{
 			$delete1->delete();
 		}
-		
-		
+
+
 		$this->redirect(array('default/mailshots'));
 }
 public function actionDeletemailshot($id)
@@ -607,8 +607,8 @@ public function actionDeleteallsent()
 		{
 			$delete1->delete();
 		}
-		
-		
+
+
 		$this->redirect(array('default/sentmail'));
 }
 
@@ -625,7 +625,7 @@ public function actionDeleteallsent()
 		$fname		= current( $filename );
 		$extension	= end( $filename );
 		$phonenumbers	= array();
-		
+
 		if($extension == "xls"){	// or $extension == "xlsx"
 			Yii::import('application.extensions.ExcelReader.*');
 			require_once('excel_reader.php');     // include the class
@@ -634,12 +634,12 @@ public function actionDeleteallsent()
 			// creates an object instance of the class, and read the excel file data
 			$excel = new PhpExcelReader;
 			$excel->read($path);
-			
+
 			$nr_sheets 	= count($excel->sheets);       // gets the number of sheets
 			if($nr_sheets>0){
                             echo 1; exit;
 				// traverses the number of sheets and sets html table with each sheet data in $excel_data
-				$sheet	= $excel->sheets[0];				
+				$sheet	= $excel->sheets[0];
 				$rows	= $sheet['numRows'];
 				$cols	= $sheet['numCols'];
 				if($rows>1){
@@ -654,18 +654,18 @@ public function actionDeleteallsent()
 					$nameindex		= ( $nameindex === false )?false:( $nameindex + 1 );
 					$numberindex	= $this->array_search2d("email", $fields);
 					$numberindex	= ( $numberindex === false )?false:( $numberindex + 1 );
-					
+
 					if( $numberindex === false ){
 						$response["message"]	= Yii::t('app', "Excel file must have a field")." `email`";
 					}
 					else{
-						$x++;						
-						while($x <= $rows) {					
+						$x++;
+						while($x <= $rows) {
 							if( $nameindex !== false )
 								$phonenumbers[$x - 1]["name"]	= isset($sheet['cells'][$x][$nameindex]) ? $sheet['cells'][$x][$nameindex] : '';
 							$phonenumbers[$x - 1]["email"]	= isset($sheet['cells'][$x][$numberindex]) ? $sheet['cells'][$x][$numberindex] : '';
 							$x++;
-						}			
+						}
 						$response["status"]		= "success";
 						$response["email"]	= $phonenumbers;
 					}
@@ -677,22 +677,22 @@ public function actionDeleteallsent()
 			else{
 				$response["message"]	= Yii::t('app', "No data found");
 			}
-		}	
+		}
 		else if ($extension == "csv") {
-                    
-                   
-			$contents	= file_get_contents( $_FILES['myfile']['tmp_name'] );			
+
+
+			$contents	= file_get_contents( $_FILES['myfile']['tmp_name'] );
 			$datas 		= array_map("str_getcsv", preg_split('/\r*\n+|\r+/', $contents));
-			
+
 			$start		= 0;
 			if(isset($datas[$start])){
 				$nameindex		= $this->array_search2d("name", $datas[$start]); //array_search('name', str_replace("\s","",$datas[$start]));
 				$numberindex	= $this->array_search2d("email", $datas[$start]); //array_search('number', $datas[$start]);
-				
+
 				//echo $numberindex;exit;
-				
+
 				if( $numberindex=== false ){
-					$response["message"]	= Yii::t('app', "CSV file must have a field")." `email`";					
+					$response["message"]	= Yii::t('app', "CSV file must have a field")." `email`";
 				}
 				else{
 					$start++;
@@ -713,14 +713,14 @@ public function actionDeleteallsent()
 		else {
 			$response["message"]	= Yii::t('app', "Please upload a"). " csv / .xls ".Yii::t('app', "file");
 		}
-		
+
 		echo json_encode($response);
 		Yii::app()->end();
 	}
-        
+
         public function actionNewusermail()
 	{
-            
+
             //for new receiptients
             $recipient_user="";
             $email_list="";
@@ -736,15 +736,15 @@ public function actionDeleteallsent()
                         {
                                 $name				= (count($parts)>1)?$parts[0]:NULL;
                                 $email		= end($parts);
-                                $email_array[]=$email; 
+                                $email_array[]=$email;
                                 $emails[]=$email;
                         }
                 }
                 $email_list= implode(",",$email_array);
-              
+
             }
-            
-            
+
+
 		$batch[] = $_POST['batch'];
 		$user[] = $_POST['user'];
 		require_once(dirname(__FILE__) .'/../../../extensions/PHPMailer/class.phpmailer.php');
@@ -755,7 +755,7 @@ public function actionDeleteallsent()
                     $draft = EmailDrafts::model()->findByAttributes(array('id'=>$_REQUEST['id']));
 		}
 		else
-                { 
+                {
                     $draft = new EmailDrafts;
 		}
 		if($_POST['EmailDrafts']['subject']){
@@ -767,9 +767,9 @@ public function actionDeleteallsent()
 		$draft->message = trim($_POST['editor1']);
 		$draft->created_by = Yii::app()->user->id;
 		$draft->status=2;
-		$settings=UserSettings::model()->findByAttributes(array('user_id'=>1));									
+		$settings=UserSettings::model()->findByAttributes(array('user_id'=>1));
 			if($settings!=NULL)
-			{	
+			{
 			$timezone = Timezone::model()->findByAttributes(array('id'=>$settings->timezone));
 			date_default_timezone_set($timezone->timezone);
 			}
@@ -777,12 +777,12 @@ public function actionDeleteallsent()
                 $flag=0;
                 if($email_list=="" && $_POST['user']=='' || ltrim($_POST['editor1'])=='')
                 {
-                    
+
                     if($_POST['user']=='' || ltrim($_POST['editor1'])=='')
                     {
                             if( $_POST['user']==''){
                                     Yii::app()->user->setFlash('usererrorMessage',Yii::t('app', "Please select a recipient group!"));
-                        } 
+                        }
                             if(ltrim($_POST['editor1'])==''){
                                 Yii::app()->user->setFlash('editerrorMessage',Yii::t('app', "Message Field cannot be Empty!"));
 
@@ -790,7 +790,7 @@ public function actionDeleteallsent()
                             if($_POST['batch']==NULL){
                                 Yii::app()->user->setFlash('batchselect',Yii::t('app', "Please select a").' '.Yii::app()->getModule('students')->fieldLabel("Students", "batch_id").' '.'!');
                                     //Yii::app()->user->setFlash('batchselect',Yii::t('app', "Please select a batch!"));
-                            }				
+                            }
 
                        $this->redirect(array('sendmails'));
                     }
@@ -803,10 +803,10 @@ public function actionDeleteallsent()
                 {
                     $flag=1;
                 }
-                
+
 		if($flag==1)
 		{
-		
+
 		if(isset($_POST['mailshot']))
 		$draft->is_mailshot = 1;
 		if($draft->save())
@@ -815,7 +815,7 @@ public function actionDeleteallsent()
                         {
 					$recipients = EmailRecipients::model()->findByAttributes(array('mail_id'=>$_REQUEST['id']));
 			}
-				else{ 
+				else{
 					$recipients = new EmailRecipients;
 					$recipients->mail_id = $draft->id;
 				}
@@ -826,14 +826,14 @@ public function actionDeleteallsent()
 					$recipients->users = '0';
 				}
 				else
-                                {					
+                                {
 					foreach($user as $users){
 						$users1 = implode (',',$users);
 					}
 					$recipients->users = $users1;
-				} 
+				}
                                     $recipients->user_email= $recipient_user;
-					$recipients->save();	
+					$recipients->save();
 			}
 			if(isset($batch))
                         {
@@ -845,7 +845,7 @@ public function actionDeleteallsent()
 						$batches1 = implode (',',$batches);
 					}
 					$recipients->batches = $batches1;
-				} 
+				}
                                 $recipients->user_email= $recipient_user;
 				$recipients->save();
 			}
@@ -859,22 +859,22 @@ public function actionDeleteallsent()
                        }
                         $recipients->user_email= $email_list;
                         $recipients->save();
-					
+
 			if(CUploadedFile::getInstancesByName('Attachment')){
-				
+
 					$attachments = CUploadedFile::getInstancesByName('Attachment');
 					if (isset($attachments) && count($attachments) > 0) {
 						 $path	=	'uploads/attachments/'.$draft->id.'/';
 							if(!is_dir($path)){
-								mkdir($path);	
-							}					
+								mkdir($path);
+							}
 						  foreach ($attachments as $attachment => $pic) {
 							   if ($pic->saveAs($path.$pic->name)) {
 									 $img_add = new EmailAttachments;
                        				 $img_add->file = $pic->name; //it might be $img_add->name for you, filename is just what I chose to call it in my model
                         			 $img_add->mail_id = $draft->id; // this links your picture model to the main model (like your user, or profile model)
                             		 $img_add->created_by	=	Yii::app()->user->id;
-									 $img_add->file_type = $pic->type;	
+									 $img_add->file_type = $pic->type;
 									 $img_add->save(); // DONE
                   		  		 }
 								 else{
@@ -882,44 +882,44 @@ public function actionDeleteallsent()
                     			 }
 						  }
 					}
-				
+
 			}
 		}
 		if(in_array(1,$_POST['user']) && $_POST['batch']==NULL)
-		{			
+		{
 					$employees = Employees::model()->findAll('is_deleted=:x',array(':x'=>0));
 					foreach($employees as $employee){
-						$emails[] = $employee->email;	
+						$emails[] = $employee->email;
 					}
-			
+
 		}
 		if((in_array(1,$_POST['user']) || in_array(0,$_POST['user'])) && $_POST['batch']!=NULL)
-		{			
+		{
 			foreach($batch as $batches){
 					$criteria = new CDbCriteria;
 					$criteria->compare('batch_id',$batches);
 					$teachers = TimetableEntries::model()->findAll($criteria);
-			
+
 				foreach($teachers as  $teacher){
 						$criteria = new CDbCriteria;
 						$criteria->compare('id',$teacher->employee_id);
 						$personal = Employees::model()->findAll($criteria);
-			
+
 					foreach($personal as $personals){
 							$teach[] = $personals->email;
 								}
 					}
 			}
-                        
+
                         $new_array= array_unique($teach);
                         foreach ($new_array as $data)
                         {
                             $emails[]= $data;
                         }
-					//$emails[] = array_unique($teach);	
-			
+					//$emails[] = array_unique($teach);
+
 		}
-		
+
 		if(in_array(2,$_POST['user']) || in_array(0,$_POST['user']))
 		{
 			foreach($batch as $batches){
@@ -929,20 +929,20 @@ public function actionDeleteallsent()
 				$students1 = Students::model()->findAll($criteria);
 				foreach($students1 as $student)
 				{
-					$criteria = new CDbCriteria;					
+					$criteria = new CDbCriteria;
 					$criteria->addInCondition("id", array($student->parent_id));
 					$parents = Guardians::model()->findAll($criteria);
 					foreach($parents as $parent){
 						$emails[] = $parent->email;
 					}
 
-					
-				}
-				
-					
-			}		
 
-		} 
+				}
+
+
+			}
+
+		}
 		if(in_array(3,$_POST['user']) || in_array(0,$_POST['user']))
 		{
 			foreach($batch as $batches){
@@ -953,26 +953,26 @@ public function actionDeleteallsent()
 			}
 				foreach($students as $student){
 					$emails[] = $student->email;
-				}			
+				}
 		}
-                
-                
-                
+
+
+
                 // $emails= $email_array;
-                
-                
+
+
                 //var_dump(array_merge($emails[0],$email_array)); exit;
                // $emails = array_merge($emails,$email_array);
                 //var_dump($emails); exit;
 		//$admin = Users::model()->findByAttributes(array('id'=>1));
 		$mails = array_unique($emails);
-               
+
 		$criteria = new CDbCriteria;
 		$criteria->compare('mail_id',$draft->id);
 		$attachmnts = EmailAttachments::model()->findAll($criteria);
-                
-                
-                
+
+
+
 		foreach($mails as $mail1)
                 {
 			$mail = new PHPMailer();
@@ -982,21 +982,21 @@ public function actionDeleteallsent()
 			$mail->MsgHTML($_POST['editor1']);
 			$mail->Subject = $_POST['EmailDrafts']['subject'];
 			foreach($attachmnts as $attachmnt){
-			$path =  'uploads/attachments/'.$attachmnt->mail_id.'/'.$attachmnt->file;	
+			$path =  'uploads/attachments/'.$attachmnt->mail_id.'/'.$attachmnt->file;
 			$mail->AddAttachment($path);
 			}
 			$mail->Send();
 		}
-		
-		
-		$this->redirect(array('sendmails'));		
+
+
+		$this->redirect(array('sendmails'));
 	}
 
 }
 
         public function actionSavenewdraft()
 	{
-            
+
             $recipient_user="";
             if(isset($_POST['recipients']) and $_POST['recipients']!=""){
                 $recipient_user	= $_POST['recipients'];
@@ -1009,18 +1009,18 @@ public function actionDeleteallsent()
                         {
                                 $name				= (count($parts)>1)?$parts[0]:NULL;
                                 $email		= end($parts);
-                                $email_array[]=$email; 
+                                $email_array[]=$email;
                         }
                 }
                 $email_list= implode(",",$email_array);
-               
+
             }
 		$batch[] = $_POST['batch'];
 		$user[] = $_POST['user'];
 		if($_REQUEST['id']){
 		$draft = EmailDrafts::model()->findByAttributes(array('id'=>$_REQUEST['id']));
 		}
-		else{ 
+		else{
 		$draft = new EmailDrafts;
 		}
 		if($_POST['EmailDrafts']['subject']){
@@ -1030,50 +1030,50 @@ public function actionDeleteallsent()
 			$draft->subject = "(no subject)";
 		}
 		$draft->message = $_POST['editor1'];
-		 
-		
+
+
 		/*if($_POST['user']=='' || $_POST['editor1']=='')
 		{
-			
+
 			 if( $_POST['user']=='')
 		    {
-			  
+
 			  Yii::app()->user->setFlash('usererrorMessage',UserModule::t("Recipient Field cannot be Empty!"));
-		    } 
+		    }
 		   if(ltrim($_POST['editor1'])=='')
 		     {
 			      Yii::app()->user->setFlash('editerrorMessage',UserModule::t("Message Field cannot be Empty!"));
-			
+
 		     }
 			   $this->redirect(array('sendmail'));
 		}
 		else
 		{*/
 		$draft->created_by = Yii::app()->user->id;
-		$settings=UserSettings::model()->findByAttributes(array('user_id'=>1));									
+		$settings=UserSettings::model()->findByAttributes(array('user_id'=>1));
 		if($settings!=NULL)
-		{	
+		{
 			$timezone = Timezone::model()->findByAttributes(array('id'=>$settings->timezone));
 			date_default_timezone_set($timezone->timezone);
 		}
 		$draft->created_on = date('Y-m-d H:i:s');
 		if(isset($_POST['mailshot']))
-		$draft->is_mailshot = 1;		
+		$draft->is_mailshot = 1;
 		if($draft->save())
                 {
-			
+
 				if($_REQUEST['id']){
-					
+
 					$recipients = EmailRecipients::model()->findByAttributes(array('mail_id'=>$_REQUEST['id']));
 				}
-				else{ 
+				else{
 					$recipients = new EmailRecipients;
 					$recipients->mail_id = $draft->id;
 				}
-                                
+
 			if(isset($user))
 			{
-				
+
 				if(count($user)==4)
 				{
 					$recipients->users = 0;
@@ -1084,12 +1084,12 @@ public function actionDeleteallsent()
 						$users1 = implode (',',$users);
 					}
 					$recipients->users = $users1;
-				} 
-                                
+				}
+
 					$recipients->save();
 			}
 			if(isset($batch)){
-				
+
 				if(in_array("0",$batch)){
 					$recipients->users = '0';
 				}
@@ -1098,10 +1098,10 @@ public function actionDeleteallsent()
 						$batches1 = implode (',',$batches);
 					}
 					$recipients->batches = $batches1;
-				} 
+				}
 				$recipients->save();
 			}
-                        
+
                        if(!isset($users))
                        {
                            $recipients->users = NULL;
@@ -1112,44 +1112,44 @@ public function actionDeleteallsent()
                        }
                         $recipients->user_email= $email_list;
                         $recipients->save();
-                        
-                        
-			if(CUploadedFile::getInstancesByName('Attachment')){				
-					
+
+
+			if(CUploadedFile::getInstancesByName('Attachment')){
+
 					$attachments = CUploadedFile::getInstancesByName('Attachment');
 					if (isset($attachments) && count($attachments) > 0) {
 						 $path	=	'uploads/attachments/'.$draft->id.'/';
 							if(!is_dir($path)){
-								mkdir($path);	
-							}					
+								mkdir($path);
+							}
 						  foreach ($attachments as $attachment => $pic) {
 							   if ($pic->saveAs($path.$pic->name)) {
 									 $img_add = new EmailAttachments;
-                       				 $img_add->file = $pic->name; 
-                        			 $img_add->mail_id = $draft->id; 
+                       				 $img_add->file = $pic->name;
+                        			 $img_add->mail_id = $draft->id;
                             		 $img_add->created_by	=	Yii::app()->user->id;
-									 $img_add->file_type = $pic->type;	
-									 $img_add->save(); 
+									 $img_add->file_type = $pic->type;
+									 $img_add->save();
                   		  		 }
 								 else{
                         				echo Yii::t('app', 'Cannot upload!');
                     			 }
 						  }
 					}
-				
+
 			}
 			}
 			if(isset($_POST['mailshot']))
 				$this->redirect(array('mailshots'));
 			else
 				$this->redirect(array('drafts'));
-				
-				
-				
+
+
+
 	//}
-				
+
 	}
-        
+
         protected function array_search2d($needle, $haystack) {
 		for ($i = 0, $l = count($haystack); $i < $l; ++$i) {
 			if ($needle==$haystack[$i]) return $i;
@@ -1157,5 +1157,14 @@ public function actionDeleteallsent()
 		return false;
 	}
 
-	
+        public function actionParentcontacts(){
+            if(isset($_POST['ParentContacts'])){
+                $cond = [];
+                $cond['batch_id'] = array_filter($_POST['batch']);
+                $export	= new Export;
+                $export->exportdb('csv', 'Guardians', $cond);
+            }
+
+            $this->render('parentcontacts');
+        }
 }

@@ -32,7 +32,7 @@ class Guardians extends CActiveRecord
     public $relation_other;
 	public $same_address;
     public $student_name;
-	
+
 	private $_model;
 	private $_modelReg;
 	private $_rules = array();
@@ -60,13 +60,13 @@ class Guardians extends CActiveRecord
 	{
 		if (!$this->_rules) {
 			$required = array();
-			$numerical = array();					
+			$numerical = array();
 			$decimal = array();
 			$safe	= array();
 			$rules = array();
-			
+
 			$model=$this->getFields();
-			
+
 			foreach ($model as $field) {
 				$field_rule 	= array();
 				$rule_added		= false;
@@ -85,23 +85,23 @@ class Guardians extends CActiveRecord
 					array_push($numerical,$field->varname);
 					$rule_added		= true;
 				}
-				
+
 				if($rule_added==false){
 					array_push($safe,$field->varname);
 				}
-			}			
+			}
 			array_push($rules,array(implode(',',$required), 'required'));
-			array_push($rules,array(implode(',',$numerical), 'numerical', 'integerOnly'=>true));			
+			array_push($rules,array(implode(',',$numerical), 'numerical', 'integerOnly'=>true));
 			array_push($rules,array(implode(',',$decimal), 'match', 'pattern' => '/^\s*[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?\s*$/'));
 			array_push($rules,array(implode(',',$safe), 'safe'));
 			array_push($rules,array('email','email'));
 			array_push($rules,array('email','unique'));
 			array_push($rules,array('email','check'));
 			array_push($rules,array('relation_other','check_relation'));
-			
+
 			$this->_rules = $rules;
 		}
-		return $this->_rules;  				
+		return $this->_rules;
 	}
 
 	/**
@@ -114,9 +114,10 @@ class Guardians extends CActiveRecord
 		return array(
 		 'emergency'=>array(self::BELONGS_TO, 'Students', 'id'),
 		 'active'=>array(self::BELONGS_TO, 'Students', 'is_active'),
+		 'guardianLists' => array(self::HAS_MANY, 'GuardianList', 'guardian_id'),
 		);
 	}
-        
+
 	//for check relation is others and validation
 	public function check_relation()
 	{
@@ -128,10 +129,10 @@ class Guardians extends CActiveRecord
 			}
 		}
 	}
-        
+
 	//check the email is unique
 	public function check($attribute,$params)
-    {	            				
+    {
 		$student= Students::model()->findByAttributes(array('email'=>$this->$attribute));
 		$employee= Employees::model()->findByAttributes(array('email'=>$this->$attribute));
 		$validate = User::model()->findByAttributes(array('email'=>$this->$attribute));
@@ -139,22 +140,22 @@ class Guardians extends CActiveRecord
 			if(($validate!=NULL and $validate->id!=$this->uid) or $employee!=NULL or $student!=NULL){
 				$this->addError($attribute,Yii::t("app",'Email ').'"'.$this->$attribute.'"'.Yii::t('app',' has already been taken'));
 			}
-		}                               
+		}
     }
 	//check the phone number is unique
 	public function check_phone($attribute,$params)
     {
-		
+
 		$student= Students::model()->findByAttributes(array('phone1'=>$this->$attribute));
 		$employee= Employees::model()->findByAttributes(array('mobile_phone'=>$this->$attribute));
 		$parent= Guardians::model()->findByAttributes(array('mobile_phone'=>$this->$attribute));
-		
+
 		if(Yii::app()->controller->action->id!='update' and $this->$attribute!='')
 		{
-			
+
 			if($student!=NULL or $employee!=NULL or $parent!=NULL)
 			{
-			
+
 				$this->addError($attribute,Yii::t("app",'Mobile Phone already in use'));
 			}
 		}
@@ -180,12 +181,12 @@ class Guardians extends CActiveRecord
 			'relation_other'=>Yii::t("app",'Specify Relation')
 		);
 		$model=$this->getFields();
-		
+
 		foreach ($model as $field){
 			$labels[$field->varname] = Yii::t('app',$field->title);
 		}
-			
-		return $labels;			
+
+		return $labels;
 	}
 
 	/**
@@ -198,11 +199,11 @@ class Guardians extends CActiveRecord
 		// should not be searched.
 
 		$criteria=new CDbCriteria;
-		$criteria->join = 'JOIN guardian_list t2 ON t.id = t2.guardian_id JOIN students t1 ON t1.id = t2.student_id'; 
+		$criteria->join = 'JOIN guardian_list t2 ON t.id = t2.guardian_id JOIN students t1 ON t1.id = t2.student_id';
 		$criteria->distinct = true;
 		$criteria->condition = 't1.type=:type';
 		$criteria->params = array(':type'=>0);
-		$criteria->compare('t.id',$this->id);                
+		$criteria->compare('t.id',$this->id);
 		$criteria->compare('t.ward_id',$this->ward_id);
 		$criteria->compare('t.first_name',$this->first_name,true);
 		$criteria->compare('t.last_name',$this->last_name,true);
@@ -223,13 +224,13 @@ class Guardians extends CActiveRecord
 		$criteria->compare('t.created_at',$this->created_at,true);
 		$criteria->compare('t.updated_at',$this->updated_at,true);
 		$criteria->compare('t.is_delete',0,true);
-		
+
 
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,
 		));
 	}
-	
+
 	function studentname($data,$row)
 	{
            //echo $data->id;
@@ -247,10 +248,10 @@ class Guardians extends CActiveRecord
 			return '-';
 		}
 	}
-        
+
         function students($data,$row)
 	{
-          
+
            $array_list= array();
            $glist= GuardianList::model()->findAllByAttributes(array('guardian_id'=>$data->id));
            if($glist)
@@ -260,18 +261,18 @@ class Guardians extends CActiveRecord
                    $st_list= Students::model()->findByAttributes(array('id'=>$student->student_id,'is_active'=>1,'is_deleted'=>0));
                    if($st_list)
                    {
-                       
-                       $array_list[]=  ucfirst($st_list->first_name)." ".  ucfirst($st_list->last_name); 
+
+                       $array_list[]=  ucfirst($st_list->first_name)." ".  ucfirst($st_list->last_name);
                    }
                }
            }
            return implode(",", $array_list);
-           
-		
+
+
 	}
         function studentlist($data,$row)
 	{
-          
+
            $array_list= array();
            $glist= GuardianList::model()->findAllByAttributes(array('guardian_id'=>$data->id));
            if($glist)
@@ -287,15 +288,15 @@ class Guardians extends CActiveRecord
                            $name='';
                             $name=  $st_list->studentFullName('forStudentProfile');
                         }
-                       $array_list[]=  $name; 
+                       $array_list[]=  $name;
                    }
                }
            }
            return implode(",", $array_list);
-           
-		
+
+
 	}
-        
+
         //action for het student name - multiple parent
         function studentname_parent($data,$row)
 	{
@@ -304,14 +305,14 @@ class Guardians extends CActiveRecord
             {
                 $student_id= $list->student_id;
             }
-            
+
 		$posts = Students::model()->findByPk($student_id);
 		if($posts!=NULL)
 		{
 			$students = array();
 			//foreach($posts as $post)
 			{
-                            
+
 				echo $posts->first_name.' '.$posts->last_name.'<br/>';
 			}
 		}
@@ -320,7 +321,7 @@ class Guardians extends CActiveRecord
 			return '-';
 		}
 	}
-	
+
 	function parentname($data,$row)
 	{
 		$name= "";
@@ -344,7 +345,7 @@ class Guardians extends CActiveRecord
 		}
 
         //return CHtml::link(ucfirst($data->first_name).' '.ucfirst($data->last_name), array('/students/guardians/view','id'=>$data->id));
-		//return ucfirst($data->first_name).' '.ucfirst($data->last_name);	
+		//return ucfirst($data->first_name).' '.ucfirst($data->last_name);
 	}
         function parentnamedata($data,$row)
 	{
@@ -369,7 +370,7 @@ class Guardians extends CActiveRecord
 		}
 
         //return CHtml::link(ucfirst($data->first_name).' '.ucfirst($data->last_name), array('/students/guardians/view','id'=>$data->id));
-		//return ucfirst($data->first_name).' '.ucfirst($data->last_name);	
+		//return ucfirst($data->first_name).' '.ucfirst($data->last_name);
 	}
 
 	public function getFullname(){
@@ -394,7 +395,7 @@ class Guardians extends CActiveRecord
         {
             $name 	.= ucfirst($this->first_name);
         }
-        
+
         if(FormFields::model()->isVisible('last_name','Guardians', $scope))
         {
             $name 	.= (($name!="")?" ":"").ucfirst($this->last_name);
@@ -402,29 +403,29 @@ class Guardians extends CActiveRecord
 
         return $name;
 	}
-        
+
 	//function for return guardian relation - parent details
 	function Guardian_relations()
 	{
-		   
+
 		$id= $_REQUEST['id'];
 		$relations= CHtml::listData(GuardianList::model()->findAllByAttributes(array('student_id'=>$id)), 'id', 'relation');
-		$list= array('Father'=>Yii::t("app",'Father'),'Mother'=>Yii::t("app",'Mother'),'Others'=>Yii::t("app",'Others'));                        
-	   
+		$list= array('Father'=>Yii::t("app",'Father'),'Mother'=>Yii::t("app",'Mother'),'Others'=>Yii::t("app",'Others'));
+
 		//$list= array('Father'=>Yii::t("app",'Father'),'Mother'=>Yii::t("app",'Mother'),'Others'=>Yii::t("app",'Others'));
 		return array_diff($list, $relations);
-		
-		
+
+
 	}
-	
+
 	function Guard_relations()
-	{                          
-		$list= array('Father'=>Yii::t("app",'Father'),'Mother'=>Yii::t("app",'Mother'),'Others'=>Yii::t("app",'Others'));                                   
+	{
+		$list= array('Father'=>Yii::t("app",'Father'),'Mother'=>Yii::t("app",'Mother'),'Others'=>Yii::t("app",'Others'));
 		//$list= array('Father'=>Yii::t("app",'Father'),'Mother'=>Yii::t("app",'Mother'),'Others'=>Yii::t("app",'Others'));
-		return ($list);                        
+		return ($list);
 	}
-	
-//Get the fiedls from form_fields	
+
+//Get the fiedls from form_fields
 	public function getFields() {
 		$scope 		= NULL;
 		if(Yii::app()->controller->module->id == 'students'){
@@ -436,7 +437,7 @@ class Guardians extends CActiveRecord
 		if(Yii::app()->controller->module->id == 'parentportal'){
 			$scope 	= "forParentPortal";
 		}
-		
+
 		$criteria	= new CDbCriteria;
 		$criteria->condition	= "`tab_selection`=:tab_selection AND `model`=:model";
 		$criteria->params		= array(':tab_selection'=>2, 'model'=>"Guardians");
@@ -447,10 +448,10 @@ class Guardians extends CActiveRecord
 			$this->_modelReg	= FormFields::model()->findAll($criteria);
 		}
 
-		return $this->_modelReg;	
-	}	
+		return $this->_modelReg;
+	}
 	public function getVisible($data)
 	{
-	  
+
 	}
 }

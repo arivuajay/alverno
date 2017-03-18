@@ -153,6 +153,10 @@
             </div>
         </div>
         <script type="text/javascript">
+            // precision is 10 for 10ths, 100 for 100ths, etc.
+            function roundUp(num, precision) {
+                return Math.ceil(num * precision) / precision
+            }
             function sc_change() {
                 scValAmt = stValAmt = ServiceTotal = theTotal = 0.00;
                 scValText = 0;
@@ -165,10 +169,10 @@
                     SC_ATTR = $('[name="pay_mode"]:checked');
                     if (SC_ATTR.data('sc-mode') == 'CC') {
                         scValText = SC_ATTR.data('sc-val') + '%';
-                        subCharge = Amt * (SC_ATTR.data('sc-val') / 100);
+                        subCharge = roundUp(Amt * (SC_ATTR.data('sc-val') / 100), 100);
                     } else if (SC_ATTR.data('sc-mode') == 'DC') {
                         scValText = DCVAL + '%';
-                        subCharge = Amt * (DCVAL / 100);
+                        subCharge = roundUp(Amt * (DCVAL / 100), 100);
                     } else if (SC_ATTR.data('sc-mode') == 'IB') {
                         scValText = 'RS.' + SC_ATTR.data('sc-val');
                         subCharge = SC_ATTR.data('sc-val');

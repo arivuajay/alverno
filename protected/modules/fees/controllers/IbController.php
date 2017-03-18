@@ -10,20 +10,23 @@ class IbController extends RController {
 //	}
 
     public function actionConfirm() {
-        $response = Yii::app()->Ib->getResponseDetail($_POST);
+        list($response, $unclean_response) = Yii::app()->Ib->getResponseDetail($_POST);
         $invoice_id = Yii::app()->session['invoice_id'];
+        $transaction_id = Yii::app()->session['transaction_id'];
+        $transaction = FeeTransactions::model()->findByPk($transaction_id);
 
         if (isset($response['txn_status'])) {
             //payment was completed successfully
-            $transaction = FeeTransactions::model()->findByPk(Yii::app()->session['transaction_id']);
 
             if ($transaction != NULL) {
-                $transaction->transaction_id = $response['tpsl_txn_id'];
+                $transaction->responseparams = $unclean_response;
                 $transaction->transaction_log = json_encode($response);
-                
+                $transaction->transaction_id = @$response['tpsl_txn_id'];
+
                 if (!$transaction->amount)
                     $transaction->amount = Yii::app()->session['final_amount'];
-                $transaction->date = date('Y-m-d H:i:s', strtotime($response['tpsl_txn_time']));
+                if (@$response['tpsl_txn_time'])
+                    $transaction->date = date('Y-m-d H:i:s', strtotime($response['tpsl_txn_time']));
 
                 if ($response['txn_msg'] == 'success') {
                     $transaction->status = 1;
@@ -39,7 +42,10 @@ class IbController extends RController {
                     unset(Yii::app()->session['final_amount']);
                     unset(Yii::app()->session['transaction_id']);
                     unset(Yii::app()->session['invoice_id']);
+                    unset(Yii::app()->session['pay_mode']);
                 }
+            } else {
+                $error = Yii::t('app', "We were unable find transaction '{$transaction_id}'. Contact Support Team");
             }
         } else {
             $error = Yii::t('app', 'We were unable to process your request. Please try again later');

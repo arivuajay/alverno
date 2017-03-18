@@ -120,11 +120,21 @@ class MyInvoicesController extends RController {
 
                     if ($gateway->validate()) {
                         $paymentInfo = array();
-                        $paymentInfo['Order']['payMode'] = $gateway->pay_mode;
                         $paymentInfo['Order']['theTotal'] = $gateway->amount;
                         $paymentInfo['Order']['serviceCharge'] = $gateway->service_charge;
                         $paymentInfo['Order']['description'] = $invoice->name;
                         $paymentInfo['Order']['quantity'] = 1;
+                        
+                        $customer_name   = "-";
+                        if($invoice->table_id!=NULL and $invoice->table_id!=0){
+                            if($invoice->user_type==1){ //student
+                                $student        = Students::model()->findByPk($invoice->table_id);
+                                if($student!=NULL)
+                                    $customer_name   = $student->studentFullName('forParentPortal');
+                            }
+                        }
+                        $paymentInfo['Order']['CustomerName'] = $customer_name;
+                        $paymentInfo['Order']['CustomerId'] = $invoice->table_id;
 
                         $transaction = new FeeTransactions;
                         $transaction->invoice_id = $invoice->id;
@@ -137,9 +147,14 @@ class MyInvoicesController extends RController {
                             Yii::app()->session['final_amount'] = $gateway->amount;
                             Yii::app()->session['transaction_id'] = $paymentInfo['Order']['txn_id'] = $transaction->id;
                             Yii::app()->session['invoice_id'] = $invoice->id;
+                            Yii::app()->session['pay_mode'] = $gateway->pay_mode;
 
                             // call IB
-                            list($rState, $request) = Yii::app()->Ib->addRequestParam($paymentInfo);
+                            list($rState, $request, $requestParams) = Yii::app()->Ib->addRequestParam($paymentInfo);
+                            
+                            $transaction->requestparams = htmlentities($requestParams); //pending
+                            $transaction->save();
+                            
                             if (!$rState) {
                                 Yii::app()->user->setFlash('info', $request);
                             } else {
